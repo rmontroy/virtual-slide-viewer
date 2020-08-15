@@ -1,4 +1,14 @@
 {
   "extends": "@snowpack/app-scripts-react",
-  "plugins": []
+  "plugins": [],
+  "buildOptions": {
+    "clean": true,
+    "minify": false
+  },
+  "mount": {
+    "js": "/js",
+    "css": "/css",
+    "public": "/",
+    "viewer": "/viewer"
+  }
 }

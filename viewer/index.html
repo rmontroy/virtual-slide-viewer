@@ -4,9 +4,16 @@
     <meta charset="utf-8" />
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Virtual Slide</title>
+    <title>Virtual Slide Viewer</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+    <!-- <link rel="stylesheet" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" /> -->
+    <link
+      rel="stylesheet"
+      type="text/css"
+      media="all"
+      href="./css/style.css"
+    />
   </head>
   <body>
     <div id="root"></div>
@@ -14,12 +21,12 @@
     <script type="module">
       import React from 'react';
       import ReactDOM from 'react-dom';
-      import VirtualSlideApp from './js/VirtualSlideApp';
+      import Viewer from './js/Viewer';
       import { html } from 'htm/react';
 
       ReactDOM.render(html`
         <${React.StrictMode}>
-          <${VirtualSlideApp} />
+          <${Viewer} />
         </${React.StrictMode}>`,
         document.getElementById('root'),
       );
@@ -29,6 +36,6 @@
       if (import.meta.hot) {
         import.meta.hot.accept();
       }
-    </script>
+  </script>
   </body>
 </html>
