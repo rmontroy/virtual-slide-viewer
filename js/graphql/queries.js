@@ -3,11 +3,12 @@ import { gql } from "apollo-boost";
 export const getSlide = gql`
   query GetSlide($id: ID!) {
     getSlide(id: $id) {
-      ImageID
-      BarcodeID
-      AppMag
+      CaseID
       Date
+      ImageID
+      SlideID
       Time
+      AppMag
       MPP
     }
   }
@@ -20,11 +21,12 @@ export const listSlides = gql`
   ) {
     listSlides(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
-        ImageID
-        BarcodeID
-        AppMag
+        CaseID
         Date
+        ImageID
+        SlideID
         Time
+        AppMag
         MPP
       }
       nextToken
@@ -38,10 +40,13 @@ export const querySlidesByBarcodeIDIndex = gql`
     $first: Int
     $after: String
   ) {
-    querySlidesByBarcodeIDIndex(BarcodeID: $barcodeID, first: $first, after: $after) {
+    querySlidesByCaseIDSlideIDIndex(CaseID: $caseID, first: $first, after: $after) {
       items {
+        CaseID
+        Date
         ImageID
-        BarcodeID
+        SlideID
+        Time
         AppMag
         MPP
       }

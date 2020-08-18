@@ -1,4 +1,4 @@
-{
+module.exports = {
   "extends": "@snowpack/app-scripts-react",
   "plugins": [],
   "buildOptions": {
@@ -10,5 +10,10 @@
     "css": "/css",
     "public": "/",
     "viewer": "/viewer"
+  },
+  "installOptions": {
+    "rollup": {
+      "dedupe": ['rc-tooltip'] // work-around for @rollup/plugin-commonjs bugs
+    }
   }
 }

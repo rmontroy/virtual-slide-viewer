@@ -4,3 +4,19 @@ body {
   margin: 0;
   font-size: 16px;
 }
+
+#disclaimer {
+  text-align: center;
+  width: 100%;
+  padding: 20px;
+  color: #fff;
+  background: #666666;
+}
+
+.rmwc-tooltip-inner {
+  padding: 0.083rem;
+}
+
+.rmwc-tooltip {
+  opacity: 1;
+}
