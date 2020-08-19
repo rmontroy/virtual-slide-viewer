@@ -18,8 +18,7 @@ import '@rmwc/icon/icon.css'
 import '@rmwc/tooltip/tooltip.css'
 import SlideTable from './SlideTable'
 
-import ApolloClient from "apollo-boost"
-import { useQuery } from '@apollo/react-hooks';
+import { ApolloClient, InMemoryCache, useQuery } from "@apollo/client"
 import config from "./app_config"
 import { listSlides } from './graphql/queries'
 
@@ -27,6 +26,7 @@ import '../css/style.css'
 
 const client = new ApolloClient({
   uri: config.graphqlUri,
+  cache: new InMemoryCache(),
   headers: {
     'x-api-key': config.apiKey
   }
@@ -64,12 +64,12 @@ function makeColumns() {
           return html`
             <${Tooltip} content=${html`
               <img
-                style=${{ height: 200, "vertical-align": "middle" }}
+                style=${{ height: 200, "verticalAlign": "middle" }}
                 src=${imgSrc} alt="label"
               />
             `}>
               <img
-                style=${{ height: 72, "vertical-align": "middle" }}
+                style=${{ height: 72, "verticalAlign": "middle" }}
                 src=${imgSrc} alt="label"
               />
             </${Tooltip}>
@@ -85,12 +85,12 @@ function makeColumns() {
           return html`
             <${Tooltip} content=${html`
               <img
-                style=${{ height: 200, "vertical-align": "middle" }}
+                style=${{ height: 200, "verticalAlign": "middle" }}
                 src=${imgSrc} alt="label"
               />
             `}>
               <img
-                style=${{ height: 72, "vertical-align": "middle" }}
+                style=${{ height: 72, "verticalAlign": "middle" }}
                 src=${imgSrc} alt="label"
               />
             </${Tooltip}>
@@ -100,9 +100,8 @@ function makeColumns() {
       { Header: 'Image ID', accessor: 'ImageID' },
       { Header: 'Slide ID', accessor: 'SlideID' },
       { Header: 'Case ID', accessor: 'CaseID' },
-      { Header: 'Case ID', accessor: 'CaseID' },
       { Header: 'Scan Date', accessor: row => html`${row.Date}<br/>${row.Time}` },
-      { Header: 'Mag', accessor: 'AppMag' },
+      { Header: 'Mag', accessor: 'AppMag', Cell: ({value}) => `${value}X` },
     ]
   }
 
@@ -110,7 +109,8 @@ function VirtualSlideApp() {
   const columns = useMemo(makeColumns, [])
   const { loading, error, data, refetch } = useQuery(listSlides, {client});
   const [imageIdSortDir, setImageIdSortDir] = useState(null);
-  const [barcodeIdSortDir, setBarcodeIdSortDir] = useState(null);
+  const [slideIdSortDir, setSlideIdSortDir] = useState(null);
+  const [scanDateSortDir, setScanDateSortDir] = useState(null);
 
   useEffect(() => {
     error && console.error(error);
@@ -119,7 +119,8 @@ function VirtualSlideApp() {
   function applySort(column) {
     switch(column.id) {
       case "ImageID": return imageIdSortDir
-      case "BarcodeID": return barcodeIdSortDir
+      case "SlideID": return slideIdSortDir
+      case "Scan Date": return scanDateSortDir
       default: return undefined
     }
   }
@@ -130,8 +131,12 @@ function VirtualSlideApp() {
         setImageIdSortDir(sortDir);
         break;
       }
-      case "BarcodeID": {
-        setBarcodeIdSortDir(sortDir);
+      case "SlideID": {
+        setSlideIdSortDir(sortDir);
+        break;
+      } 
+      case "Scan Date": {
+        setScanDateSortDir(sortDir);
         break;
       } 
     }

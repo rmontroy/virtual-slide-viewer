@@ -5,8 +5,7 @@ import config from './config';
 
 const Viewer = () => {
     const [openSeadragonInstance, setOpenSeadragonInstance] = useState();
-    const [imagePrefix, setImagePrefix] = useState(config.imagePrefix);
-    const [imageSuffix, setImageSuffix] = useState(config.imageSuffix);
+    const [imageId, setImageId] = useState();
     const [queryString, setQueryString] = useState(
         window.location.search
       );
@@ -29,11 +28,11 @@ const Viewer = () => {
 
     useEffect(() => {
         let params = parseQueryString();
-        let imageId = params["imageId"];
-        let imageUrl = [imagePrefix, imageId, imageSuffix].join('/');
+        setImageId(params["imageId"]);
+        let imageUrl = config.imageUrlTemplate(params["imageId"]);
         // Initialize OpenSeadragon instance
         initOpenSeadragon(imageUrl);
-    }, []);
+    }, [queryString]);
     
     function initOpenSeadragon(imageUrl) {
     

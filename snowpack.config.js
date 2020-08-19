@@ -6,10 +6,7 @@ module.exports = {
     "minify": false
   },
   "mount": {
-    "js": "/js",
-    "css": "/css",
-    "public": "/",
-    "viewer": "/viewer"
+    src: '/'
   },
   "installOptions": {
     "rollup": {
