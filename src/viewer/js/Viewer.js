@@ -5,7 +5,7 @@ import config from './config';
 
 const Viewer = () => {
     const [openSeadragonInstance, setOpenSeadragonInstance] = useState();
-    const [imageId, setImageId] = useState();
+    const [imageIds, setImageIds] = useState([]);
     const [queryString, setQueryString] = useState(
         window.location.search
       );
@@ -28,13 +28,14 @@ const Viewer = () => {
 
     useEffect(() => {
         let params = parseQueryString();
-        setImageId(params["imageId"]);
-        let imageUrl = config.imageUrlTemplate(params["imageId"]);
+        let imageIds = params["imageIds"] ? params["imageIds"].split(",") : [];
+        setImageIds(imageIds);
         // Initialize OpenSeadragon instance
-        initOpenSeadragon(imageUrl);
+        let imageUrls = imageIds.map(imageId => config.imageUrlTemplate(imageId));
+        initOpenSeadragon(imageUrls);
     }, [queryString]);
     
-    function initOpenSeadragon(imageUrl) {
+    function initOpenSeadragon(tileSources) {
     
         setOpenSeadragonInstance(
           OpenSeadragon({
@@ -49,14 +50,16 @@ const Viewer = () => {
             showNavigator: true,
             showNavigationControl: false,
             //toolbar: "toolbarDiv",
-            tileSources: imageUrl,
+            tileSources: tileSources,
             visibilityRatio: 0.5,
+            sequenceMode: true,
+            showReferenceStrip: true,
           })
         );
       }
 
   return html`
-    <div id="main_viewer" class="main"></div>
+    <div id="main_viewer" className="main"></div>
   `;
 };
 export default Viewer;

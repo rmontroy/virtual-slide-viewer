@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { html } from 'htm/react';
 import {
   TopAppBar,
@@ -10,9 +10,12 @@ import {
 } from '@rmwc/top-app-bar';
 import { Fab } from '@rmwc/fab'
 import { Tooltip } from '@rmwc/tooltip'
+import { Checkbox } from '@rmwc/checkbox'
 import '@material/top-app-bar/dist/mdc.top-app-bar.css'
 import '@material/icon-button/dist/mdc.icon-button.css'
 import '@material/fab/dist/mdc.fab.css'
+import '@material/checkbox/dist/mdc.checkbox.css'
+import '@material/form-field/dist/mdc.form-field.css'
 import '@material/ripple/dist/mdc.ripple.css'
 import '@rmwc/icon/icon.css'
 import '@rmwc/tooltip/tooltip.css'
@@ -53,8 +56,13 @@ function AppBar({
   `
 }
 
-function makeColumns() {
-  return [ 
+function makeColumns(renderCheckbox) {
+  return [
+      // A column for selection
+      {
+        id: 'selection',
+        Cell: renderCheckbox
+      },
       {
         Header: 'Label',
         accessor: 'ImageID',
@@ -100,17 +108,31 @@ function makeColumns() {
       { Header: 'Image ID', accessor: 'ImageID' },
       { Header: 'Slide ID', accessor: 'SlideID' },
       { Header: 'Case ID', accessor: 'CaseID' },
-      { Header: 'Scan Date', accessor: row => html`${row.Date}<br/>${row.Time}` },
+      { Header: 'Scan Date', accessor: row => html`<div>${row.Date}<br/>${row.Time}</div>` },
       { Header: 'Mag', accessor: 'AppMag', Cell: ({value}) => `${value}X` },
     ]
   }
 
 function VirtualSlideApp() {
-  const columns = useMemo(makeColumns, [])
   const { loading, error, data, refetch } = useQuery(listSlides, {client});
   const [imageIdSortDir, setImageIdSortDir] = useState(null);
   const [slideIdSortDir, setSlideIdSortDir] = useState(null);
   const [scanDateSortDir, setScanDateSortDir] = useState(null);
+  const [selectedImages, setSelectedImages] = useState({});
+  const toggleImageSelected = row => () => {
+    const selectedImagesNew = {...selectedImages};
+    if (!!selectedImages[row.original["ImageID"]])
+      delete selectedImagesNew[row.original["ImageID"]];
+    else
+      selectedImagesNew[row.original["ImageID"]] = true;
+    setSelectedImages({...selectedImagesNew});
+  }
+  const renderCheckbox = ({ row }) => html`
+          <${Checkbox}
+            checked=${selectedImages[row.original["ImageID"]]}
+            onChange=${toggleImageSelected(row)}
+          />`
+  const columns = makeColumns(renderCheckbox);
 
   useEffect(() => {
     error && console.error(error);
@@ -149,19 +171,25 @@ function VirtualSlideApp() {
   });  
 
   const rowProps = row => ({
-    onClick: () => row.toggleRowSelected(!row.isSelected)
+    onClick: toggleImageSelected(row)
   });
-
+  
   return html`
     <div>
       <${AppBar}>
-        <${Fab} trailingIcon="visibility" label="View" tag="a" href="viewer" />
+        <${Fab} trailingIcon="visibility" label="View" exited=${Object.keys(selectedImages).length == 0} onClick=${() => window.location.href="viewer?imageIds=" + Object.keys(selectedImages)} />
         <${Tooltip} content="Refetch">
           <${TopAppBarActionItem} icon="refresh" onClick=${() => refetch()} />
         </${Tooltip}>
       </${AppBar}>
       ${error && html`<p>Error :( ${error}</p>`}
-      <${SlideTable} columns=${columns} data=${data ? data.listSlides.items : []} loading=${loading} getRowProps=${rowProps} getHeaderProps=${headerProps} />      
+      <${SlideTable} 
+        columns=${columns} 
+        data=${data ? data.listSlides.items : []} 
+        loading=${loading} 
+        getRowProps=${rowProps} 
+        getHeaderProps=${headerProps} 
+      />
     </div>
   `
 }
