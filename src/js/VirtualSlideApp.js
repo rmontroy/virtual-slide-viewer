@@ -177,7 +177,7 @@ function VirtualSlideApp() {
   return html`
     <div>
       <${AppBar}>
-        <${Fab} trailingIcon="visibility" label="View" exited=${Object.keys(selectedImages).length == 0} onClick=${() => window.location.href="viewer?imageIds=" + Object.keys(selectedImages)} />
+        <${Fab} trailingIcon="visibility" label="View" exited=${Object.keys(selectedImages).length == 0} tag="a" href=${"viewer?imageIds=" + Object.keys(selectedImages)} />
         <${Tooltip} content="Refetch">
           <${TopAppBarActionItem} icon="refresh" onClick=${() => refetch()} />
         </${Tooltip}>
