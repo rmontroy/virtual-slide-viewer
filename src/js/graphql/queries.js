@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
 export const getSlide = gql`
-  query GetSlide($id: ID!) {
-    getSlide(id: $id) {
+  query GetSlide($id: String!) {
+    getSlide(ImageID: $id) {
       CaseID
       Date
       ImageID
