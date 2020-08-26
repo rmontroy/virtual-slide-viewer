@@ -10,6 +10,7 @@
  * software is used.
  */
 import OpenSeadragon from 'openseadragon';
+
 /**
  *
  * @author Antoine Vandecreme <antoine.vandecreme@nist.gov>

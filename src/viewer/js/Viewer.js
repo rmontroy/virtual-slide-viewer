@@ -2,9 +2,12 @@ import { useEffect, useState } from 'react';
 import { html } from 'htm/react';
 import config from './config';
 import OpenSeadragon from 'openseadragon';
-import './openseadragon-scalebar';
-import { ApolloClient, InMemoryCache, useLazyQuery } from '@apollo/client';
-import { GET_SLIDE } from './graphql/queries';
+import './plugins/openseadragon-scalebar';
+import './plugins/openseadragon-measurement-tool';
+import '../css/openseadragon-measurement-tool.css'
+import { ApolloClient, InMemoryCache, useQuery } from '@apollo/client';
+import { GET_SLIDES } from './graphql/queries';
+import slideIdStyle from '../css/slideidtag.module.css';
 
 const client = new ApolloClient({
   uri: config.graphqlUri,
@@ -15,18 +18,20 @@ const client = new ApolloClient({
 });
 
 const Viewer = () => {
-    const [viewer, setViewer] = useState();
-    const [imageIds, setImageIds] = useState([]);
+    const [imageIds, setImageIds] = useState(getImageIds);
     const [tileSources, setTileSources] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
-    const [getSlide, {loading, data}] = useLazyQuery(GET_SLIDE, {client});
-    const [queryString, setQueryString] = useState(
-        window.location.search
-      );
+    const {loading, data} = useQuery(GET_SLIDES, { variables: { ids: imageIds}, client});
+    const [viewer, setViewer] = useState();
+
+    useEffect(() => {
+      initOpenSeadragon();
+      setTileSources(imageIds.map(imageId => config.imageUrlTemplate(imageId)));
+    }, [])
 
     function parseQueryString() {
       let params = {};
-      let search = queryString.slice(1);
+      let search = window.location.search.slice(1);
       if (search) {
         let parts = search.split("&");
     
@@ -40,36 +45,36 @@ const Viewer = () => {
       return params;
     }
 
-    useEffect(() => {
-        let params = parseQueryString();
-        let imageIds = params["imageIds"] ? params["imageIds"].split(",") : [];
-        setImageIds(imageIds);
-        getSlide({ variables: {id: imageIds[0]}});
-        let imageUrls = imageIds.map(imageId => config.imageUrlTemplate(imageId));
-        setTileSources(imageUrls);
-        initOpenSeadragon(imageUrls);
-    }, [queryString]);
-    
-    function setScalebar() {
-      viewer.scalebar({
-        pixelsPerMeter: (1 / (parseFloat(data.getSlide.MPP) * 0.000001))
-      });
+    function getImageIds() {
+      let params = parseQueryString();
+      return params["imageIds"] ? params["imageIds"].split(",") : [];  
     }
 
-    function changePageHandler(e, page) {
-      setCurrentPage(page);
-      let id = imageIds[page];
-      getSlide({ variables: {id}});
+    useEffect(() => {
+        if (viewer) viewer.open(tileSources);
+    }, [tileSources]);
+    
+
+    function changePageHandler(e) {
+      setCurrentPage(e.page);
     }
 
     useEffect(() => {
       if (data) {
-        let mpp = data.getSlide.MPP;
-        setScalebar(mpp);
+        let mpp = data.Slides[currentPage].MPP;
+        viewer.scalebar({
+          pixelsPerMeter: (1 / (parseFloat(mpp) * 0.000001))
+        });
+        viewer.measurementTool({
+          mpp: {
+            x: mpp,
+            y: mpp,
+          },
+        });
       }
-    }, [data])
+    }, [currentPage, data, tileSources])
 
-    function initOpenSeadragon(tileSources) {
+    function initOpenSeadragon() {
     
       let osd = OpenSeadragon({
         constrainDuringPan: true,
@@ -83,14 +88,16 @@ const Viewer = () => {
         showNavigator: true,
         showNavigationControl: false,
         //toolbar: "toolbarDiv",
-        tileSources: tileSources,
+        tileSources: [],
         visibilityRatio: 0.5,
         sequenceMode: true,
         showReferenceStrip: true,
+        showSequenceControl: false
       });
 
       setViewer(osd);
       osd.addHandler('page', changePageHandler);
+      //osd.addHandler('open', openHandler);
 
       try {
         osd.scalebar({
@@ -107,9 +114,12 @@ const Viewer = () => {
       } catch (ex) {
         console.log('scalebar err: ', ex.message);
       }
+
+      return osd;
     }
 
   return html`
+    <div className=${slideIdStyle.tag}>${data ? data.Slides[currentPage].SlideID : ""}</div>
     <div id="main_viewer" className="main"></div>
   `;
 };
