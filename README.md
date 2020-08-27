@@ -3,12 +3,13 @@ For now, the frontend is only (1) a data table for slide metadata and (2) the vi
 
 Authentication is intended to be transparent to the frontend (à la [this solution](https://github.com/aws-samples/cloudfront-authorization-at-edge#readme)). Once authenticated, the frontend should transparently pass an AppSync-compatible authorization cookie to the GraphQL endpoint, as well as any CloudFronted S3 buckets.
 
-## Build and run ##
+## Build and run
 - `$ npx snowpack dev` (currently broken for non-root routes)
 
 or
 1. `$ npx snowpack build --watch`
 2. `$ npx servor --static build`
+
 
 ## General workflow for Virtual Slide Viewer deployments
 1. Scanner dumps files onto ScanScope Workstation
@@ -23,3 +24,6 @@ or
     - marks slides to send (metadata) to CDR
 5.	**Pathologist reviews slides**
 
+## Related projects
+- [svs2vsv image format converter](https://github.com/VanAndelInstitute/svs2vsv)
+- backend for Virtual Slide Viewer
