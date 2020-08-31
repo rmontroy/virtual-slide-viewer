@@ -9,7 +9,6 @@ import { ApolloClient, InMemoryCache, useQuery } from '@apollo/client';
 import { GET_SLIDES } from './graphql/queries';
 import slideIdStyle from '../css/slideidtag.module.css';
 import ZoomSlider from './ZoomSlider';
-import zoomStyle from '../css/zoomslider.module.css';
 
 const client = new ApolloClient({
   uri: config.graphqlUri,
@@ -127,9 +126,7 @@ const Viewer = () => {
     ${data && data.Slides && html`
       <div className=${slideIdStyle.tag}>${data ? data.Slides[currentPage].SlideID : ""}</div>
       ${viewer && viewer.viewport && html`
-        <div className=${zoomStyle.slider}>
-          <${ZoomSlider} viewer=${viewer} appMag=${Number(data.Slides[currentPage].AppMag)} />
-        </div>
+        <${ZoomSlider} viewer=${viewer} appMag=${Number(data.Slides[currentPage].AppMag)} />
       `}
     `}
   `;
