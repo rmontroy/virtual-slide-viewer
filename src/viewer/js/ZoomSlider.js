@@ -9,7 +9,7 @@ const CustomSlider = withStyles({
     root: {
       color: '#3880ff',
       position: 'fixed',
-      bottom: 40,
+      bottom: 100,
       '&&': {
         padding: '0 20px',
         height: '50vh',
@@ -78,7 +78,7 @@ const ZoomSlider = (
 
     return html` 
         <${CustomSlider}
-            min=${0}
+            min=${flattenZoom(zoomBounds.min)}
             max=${flattenZoom(zoomBounds.max)}
             scale=${scaleToMag}
             value=${flattenZoom(zoom)}
