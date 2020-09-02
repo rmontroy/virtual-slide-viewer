@@ -21,7 +21,7 @@ body {
 }
 
 /* osd main viewer */
-#main_viewer.main {
+#openseadragon1.main {
   position: fixed;
   top: 0;
   left: 0;
@@ -30,7 +30,7 @@ body {
   background-color: rgba(0, 0, 0, 0);
 }
 
-#main_viewer.left {
+#openseadragon1.left {
   float: left;
   box-sizing: border-box;
   border-right: 2px solid rgb(54, 95, 156);

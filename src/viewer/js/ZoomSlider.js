@@ -1,17 +1,9 @@
-import { useEffect, useState } from 'react';
 import { html } from 'htm/react';
 import { withStyles } from '@material-ui/core/styles';
 import Slider from '@material-ui/core/Slider';
 
 const boxShadow =
   '0 3px 1px rgba(0,0,0,0.1),0 4px 8px rgba(0,0,0,0.13),0 0 0 1px rgba(0,0,0,0.02)';
-
-const marks = [
-    { value: 1 },
-    { value: 5 },
-    { value: 10 },
-    { value: 20 },
-];
 
 const CustomSlider = withStyles({
     root: {
@@ -61,45 +53,42 @@ const CustomSlider = withStyles({
   })(Slider);
 
 
-const ZoomSlider = ({viewer, appMag}) => {
-    const [max, setMax] = useState(Math.log2(viewer.viewport.getMaxZoom()/viewer.viewport.getMinZoom()));
-    const [value, setValue] = useState(0);
+const ZoomSlider = (
+    {
+        appMag,
+        zoom,
+        zoomBounds,
+        viewport
+    }) => {
+
+    // Conversion functions
+    const flattenZoom = (zoom) => Math.log2(zoom/zoomBounds.min);
+    const expandZoom = (zoom) => 2 ** zoom * zoomBounds.min;
+    const scaleToMag = (value) => Number(viewport.viewportToImageZoom(expandZoom(value)) * appMag).toFixed(1) + "X";
+
     
-    useEffect(() => {
-        viewer.addHandler('zoom', (e) => {
-            let value = Math.log2(viewer.viewport.getZoom()/viewer.viewport.getMinZoom());
-            setValue(value);
-        });
-        viewer.addHandler('resize', (e) => {
-            setValue(Math.log2(viewer.viewport.getZoom()/viewer.viewport.getMinZoom()));
-            setMax(Math.log2(viewer.viewport.getMaxZoom()/viewer.viewport.getMinZoom()));
-        });
-    }, [])
-
     function handleChange(event, newValue) {
-        setValue(newValue);
-        viewer.viewport.zoomTo(2**newValue * viewer.viewport.getMinZoom(), viewer.viewport.getCenter(), true);
+        viewport.zoomTo(expandZoom(newValue), viewport.getCenter(), true);
     }
 
-    function sliderToMagZoom(value) {
-        return Number(viewer.viewport.viewportToImageZoom(2 ** value * viewer.viewport.getMinZoom()) * appMag).toFixed(1) + "X";
-    }
+    let marks = [1,5,10,20].map(x => ({
+        value: flattenZoom(viewport.imageToViewportZoom(x/appMag)),
+        label: x+'X'
+    }));
 
-    function magToSliderZoom(mag) {
-        return Math.log2(viewer.viewport.imageToViewportZoom(mag/appMag)/viewer.viewport.getMinZoom());
-    }
-
-    return (html`      
+    return html` 
         <${CustomSlider}
-            min=${0} max=${max} scale=${sliderToMagZoom}
-            value=${value}
+            min=${0}
+            max=${flattenZoom(zoomBounds.max)}
+            scale=${scaleToMag}
+            value=${flattenZoom(zoom)}
             onChange=${handleChange}
             step=${0.01}
-            marks=${[1,5,10,20].map(x => ({value: magToSliderZoom(x), label: x+'X'}))}
+            marks=${marks}
             valueLabelDisplay="on"
             orientation="vertical"
         />
-    `);
+    `;
 }
 
 export default ZoomSlider;

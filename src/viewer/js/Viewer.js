@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { html } from 'htm/react';
 import config from './config';
 import OpenSeadragon from 'openseadragon';
@@ -18,90 +18,116 @@ const client = new ApolloClient({
   }
 });
 
+
+function parseQueryString() {
+  let params = {};
+  let search = window.location.search.slice(1);
+  if (search) {
+    let parts = search.split("&");
+
+    parts.forEach(function (part) {
+      let subparts = part.split("=");
+      let key = subparts[0];
+      let value = subparts[1];
+      params[key] = value;
+    });
+  }
+  return params;
+}
+
+function getImageIds() {
+  let params = parseQueryString();
+  return params["imageIds"] ? params["imageIds"].split(",") : [];  
+}
+
+
 const Viewer = () => {
-  const [imageIds, setImageIds] = useState(getImageIds);
+  const [imageIds, setImageIds] = useState([]);
   const [tileSources, setTileSources] = useState([]);
-  const [currentPage, setCurrentPage] = useState(0);
+  const [page, setPage] = useState(0);
+  const prevPageRef = useRef();
   const {loading, data} = useQuery(GET_SLIDES, { variables: { ids: imageIds}, client});
   const [viewer, setViewer] = useState();
-
+  const [zoom, setZoom] = useState(0);
+  const savedViewsRef = useRef([]);
+  const [zoomBounds, setZoomBounds] = useState();
+  
   useEffect(() => {
-    initOpenSeadragon();
-    setTileSources(imageIds.map(imageId => config.imageUrlTemplate(imageId)));
+    // Need to wait until mounting element is rendered before creating viewer
+    let viewer = initOpenSeadragon();
+    setViewer(viewer);
+
+    // Be careful to add OSD handlers only once (after initializing viewer)
+    viewer.addHandler('zoom', (e) => {
+      setZoom(e.zoom);
+    });
+    viewer.addHandler('page', (e) => {
+      savedViewsRef.current[prevPageRef.current] = {zoom: viewer.viewport.getZoom(), center: viewer.viewport.getCenter()};
+      setPage(e.page);
+      prevPageRef.current = e.page;
+    });
+    viewer.addHandler('open', (e) => {
+      setZoomBounds({min: viewer.viewport.getMinZoom(), max: viewer.viewport.getMaxZoom()});
+      let savedView = savedViewsRef.current[viewer.currentPage()] || {zoom: viewer.viewport.getZoom(), center: viewer.viewport.getCenter()};
+      setZoom(savedView.zoom);
+      viewer.viewport.zoomTo(savedView.zoom, savedView.center, true);
+    });
   }, [])
 
-  function parseQueryString() {
-    let params = {};
-    let search = window.location.search.slice(1);
-    if (search) {
-      let parts = search.split("&");
-  
-      parts.forEach(function (part) {
-        let subparts = part.split("=");
-        let key = subparts[0];
-        let value = subparts[1];
-        params[key] = value;
-      });
-    }
-    return params;
-  }
-
-  function getImageIds() {
-    let params = parseQueryString();
-    return params["imageIds"] ? params["imageIds"].split(",") : [];  
-  }
+  useEffect(() => {
+    setImageIds(getImageIds());
+  }, [window.location.search])
 
   useEffect(() => {
-      if (viewer) viewer.open(tileSources);
+    setTileSources(imageIds.map(imageId => config.imageUrlTemplate(imageId)));
+    savedViewsRef.current = imageIds.map(x => 0);
+    prevPageRef.current = 0;
+  }, [imageIds])
+  
+  useEffect(() => {
+    if (!viewer || !tileSources) return;
+    viewer.open(tileSources);
   }, [tileSources]);
   
-
-  function changePageHandler(e) {
-    setCurrentPage(e.page);
-  }
-
   useEffect(() => {
-    if (data) {
-      let mpp = data.Slides[currentPage].MPP;
-      viewer.scalebar({
-        pixelsPerMeter: (1 / (parseFloat(mpp) * 0.000001))
-      });
-      
-      // viewer.measurementTool({
-      //   mpp: {
-      //     x: mpp,
-      //     y: mpp,
-      //   },
-      // });
-    }
-  }, [currentPage, data, tileSources])
+    if (loading) return;
 
+    let mpp = data.Slides[page].MPP;
+    viewer.scalebar({
+      pixelsPerMeter: (1 / (parseFloat(mpp) * 0.000001))
+    });
+      
+    // viewer.measurementTool({
+    //     mpp: {
+    //         x: mpp,
+    //         y: mpp,
+    //       },
+    //     });
+    
+  }, [page, data]);
+      
   function initOpenSeadragon() {
-  
+    
     let osd = OpenSeadragon({
       constrainDuringPan: true,
       //ajaxWithCredentials: true,
       //crossOriginPolicy: "Anonymous",
       //defaultZoomLevel: 0,
-      id: "main_viewer",
+      id: "openseadragon1",
       //loadTilesWithAjax: true,
       navigatorPosition: "BOTTOM_RIGHT",
       navigatorAutoFade: false,
       showNavigator: true,
       showNavigationControl: false,
       //toolbar: "toolbarDiv",
-      tileSources: [],
+      tileSources: tileSources,
       maxZoomPixelRatio: 1,
       visibilityRatio: 0.5,
       sequenceMode: true,
       showReferenceStrip: true,
       showSequenceControl: false
     });
-
-    setViewer(osd);
-    osd.addHandler('page', changePageHandler);
-    //osd.addHandler('open', openHandler);
-
+    
     try {
       osd.scalebar({
         type: OpenSeadragon.ScalebarType.MAP,
@@ -117,17 +143,22 @@ const Viewer = () => {
     } catch (ex) {
       console.log('scalebar err: ', ex.message);
     }
-
+    
     return osd;
   }
 
+  let currentSlide = loading ? {} : data.Slides[page];
+    
   return html`
-    <div id="main_viewer" className="main"></div>
-    ${data && data.Slides && html`
-      <div className=${slideIdStyle.tag}>${data ? data.Slides[currentPage].SlideID : ""}</div>
-      ${viewer && viewer.viewport && html`
-        <${ZoomSlider} viewer=${viewer} appMag=${Number(data.Slides[currentPage].AppMag)} />
-      `}
+    <div id="openseadragon1" className="main" />
+    ${!viewer || loading ? html`<p>Loading...</p>` : html`
+      <div className=${slideIdStyle.tag}>${currentSlide.SlideID}</div>
+      <${ZoomSlider} 
+        appMag=${Number(currentSlide.AppMag)}
+        zoom=${zoom}
+        zoomBounds=${zoomBounds}
+        viewport=${viewer.viewport}
+      />
     `}
   `;
 };
