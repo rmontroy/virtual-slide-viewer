@@ -9,14 +9,13 @@ import {
   TopAppBarFixedAdjust
 } from '@rmwc/top-app-bar';
 import { Fab } from '@rmwc/fab'
-import { Tooltip } from '@rmwc/tooltip'
+import Tooltip from '@material-ui/core/Tooltip'
 import Checkbox from '@material-ui/core/Checkbox'
 import '@material/top-app-bar/dist/mdc.top-app-bar.css'
 import '@material/icon-button/dist/mdc.icon-button.css'
 import '@material/fab/dist/mdc.fab.css'
 import '@material/ripple/dist/mdc.ripple.css'
 import '@rmwc/icon/icon.css'
-import '@rmwc/tooltip/tooltip.css'
 import SlideTable from './SlideTable'
 
 import { ApolloClient, InMemoryCache, useQuery } from "@apollo/client"
@@ -68,7 +67,7 @@ function makeColumns(renderCheckbox) {
         Cell: ({value}) => {
           const imgSrc = `${config.vsv_bucket}/${value}/label.jpg`
           return html`
-            <${Tooltip} content=${html`
+            <${Tooltip} title=${html`
               <img
                 style=${{ height: 200, "verticalAlign": "middle" }}
                 src=${imgSrc} alt="label"
@@ -89,7 +88,7 @@ function makeColumns(renderCheckbox) {
         Cell: ({value}) => {
           const imgSrc = `${config.vsv_bucket}/${value}/thumbnail.jpg`
           return html`
-            <${Tooltip} content=${html`
+            <${Tooltip} title=${html`
               <img
                 style=${{ height: 200, "verticalAlign": "middle" }}
                 src=${imgSrc} alt="label"
@@ -141,7 +140,7 @@ function VirtualSlideApp() {
     <div>
       <${AppBar}>
         <${Fab} trailingIcon="visibility" label="View" exited=${Object.keys(selectedImages).length == 0} tag="a" href=${"viewer?imageIds=" + Object.keys(selectedImages)} />
-        <${Tooltip} content="Refetch">
+        <${Tooltip} title="Refetch">
           <${TopAppBarActionItem} icon="refresh" onClick=${() => refetch()} />
         </${Tooltip}>
       </${AppBar}>

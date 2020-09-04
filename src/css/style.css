@@ -11,11 +11,3 @@ body {
   color: #fff;
   background: #666666;
 }
-
-.rmwc-tooltip-inner {
-  padding: 0.083rem;
-}
-
-.rmwc-tooltip {
-  opacity: 1;
-}

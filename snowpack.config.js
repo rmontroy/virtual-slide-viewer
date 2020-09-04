@@ -8,9 +8,4 @@ module.exports = {
   "mount": {
     src: '/'
   },
-  "installOptions": {
-    "rollup": {
-      "dedupe": ['rc-tooltip'] // work-around for @rollup/plugin-commonjs bugs
-    }
-  }
 }
