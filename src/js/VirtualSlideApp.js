@@ -10,12 +10,10 @@ import {
 } from '@rmwc/top-app-bar';
 import { Fab } from '@rmwc/fab'
 import { Tooltip } from '@rmwc/tooltip'
-import { Checkbox } from '@rmwc/checkbox'
+import Checkbox from '@material-ui/core/Checkbox'
 import '@material/top-app-bar/dist/mdc.top-app-bar.css'
 import '@material/icon-button/dist/mdc.icon-button.css'
 import '@material/fab/dist/mdc.fab.css'
-import '@material/checkbox/dist/mdc.checkbox.css'
-import '@material/form-field/dist/mdc.form-field.css'
 import '@material/ripple/dist/mdc.ripple.css'
 import '@rmwc/icon/icon.css'
 import '@rmwc/tooltip/tooltip.css'
@@ -115,9 +113,6 @@ function makeColumns(renderCheckbox) {
 
 function VirtualSlideApp() {
   const { loading, error, data, refetch } = useQuery(listSlides, {client});
-  const [imageIdSortDir, setImageIdSortDir] = useState(null);
-  const [slideIdSortDir, setSlideIdSortDir] = useState(null);
-  const [scanDateSortDir, setScanDateSortDir] = useState(null);
   const [selectedImages, setSelectedImages] = useState({});
   const toggleImageSelected = row => () => {
     const selectedImagesNew = {...selectedImages};
@@ -138,38 +133,6 @@ function VirtualSlideApp() {
     error && console.error(error);
   }, [error])
 
-  function applySort(column) {
-    switch(column.id) {
-      case "ImageID": return imageIdSortDir
-      case "SlideID": return slideIdSortDir
-      case "Scan Date": return scanDateSortDir
-      default: return undefined
-    }
-  }
-
-  function updateSort(sortDir, column) {
-    switch(column.id) {
-      case "ImageID": {
-        setImageIdSortDir(sortDir);
-        break;
-      }
-      case "SlideID": {
-        setSlideIdSortDir(sortDir);
-        break;
-      } 
-      case "Scan Date": {
-        setScanDateSortDir(sortDir);
-        break;
-      } 
-    }
-  }
-  const headerProps = column => ({
-    sort: applySort(column),
-    onSortChange: sortDir => {
-      updateSort(sortDir, column);
-    }
-  });  
-
   const rowProps = row => ({
     onClick: toggleImageSelected(row)
   });
@@ -187,8 +150,7 @@ function VirtualSlideApp() {
         columns=${columns} 
         data=${data ? data.listSlides.items : []} 
         loading=${loading} 
-        getRowProps=${rowProps} 
-        getHeaderProps=${headerProps} 
+        getRowProps=${rowProps}
       />
     </div>
   `
