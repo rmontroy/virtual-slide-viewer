@@ -6,6 +6,7 @@ module.exports = {
     "minify": false
   },
   "mount": {
-    src: '/'
+    'src/metadata': '/',
+    'src/viewer': '/viewer'
   },
 }
