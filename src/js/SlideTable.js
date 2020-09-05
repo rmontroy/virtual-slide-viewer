@@ -1,13 +1,13 @@
 import { html } from 'htm/react';
-import Table from '@material-ui/core/Table'
-import TableBody from '@material-ui/core/TableBody'
-import TableCell from '@material-ui/core/TableCell'
-import TableContainer from '@material-ui/core/TableContainer'
-import TableHead from '@material-ui/core/TableHead'
-import TableRow from '@material-ui/core/TableRow'
-import Paper from '@material-ui/core/Paper'
-import LinearProgress from '@material-ui/core/LinearProgress'
-import { useTable } from 'react-table'
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TableRow from '@material-ui/core/TableRow';
+import Paper from '@material-ui/core/Paper';
+import LinearProgress from '@material-ui/core/LinearProgress';
+import { useTable } from 'react-table';
 
 function SlideTable({
   columns,
@@ -23,7 +23,7 @@ function SlideTable({
     rows, 
     prepareRow,
     visibleColumns,
-  } = useTable({ columns, data })
+  } = useTable({ columns, data });
 
   return html`
     <${TableContainer} component=${Paper}>
