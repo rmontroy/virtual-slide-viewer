@@ -26,11 +26,11 @@ export const GET_CASEIDS = gql`
 
 export const GET_SLIDES_BY_STATUS = gql`
   query SlidesByStatus(
-    $status: String!
+    $statusFilter: String!
     $limit: Int
     $nextToken: String
   ) {
-    Slides:querySlidesByStatus(Status: $status, limit: $limit, nextToken: $nextToken) {
+    Slides:querySlidesByStatus(Status: $statusFilter, limit: $limit, nextToken: $nextToken) {
       items {
         CaseID
         Date

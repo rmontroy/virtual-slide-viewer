@@ -1,16 +1,16 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import { html } from 'htm/react';
-import { makeStyles } from '@material-ui/core/styles'
+import { makeStyles } from '@material-ui/core/styles';
 import Autocomplete from '@material-ui/lab/Autocomplete';
-import TextField from '@material-ui/core/TextField'
+import TextField from '@material-ui/core/TextField';
 import FilterListIcon from '@material-ui/icons/FilterList'
-import SearchIcon from '@material-ui/icons/Search'
+import SearchIcon from '@material-ui/icons/Search';
 import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
-import Zoom from '@material-ui/core/Zoom'
-import Chip from '@material-ui/core/Chip'
+import Zoom from '@material-ui/core/Zoom';
+import Chip from '@material-ui/core/Chip';
 import { useLazyQuery } from '@apollo/client';
-import { GET_CASEIDS } from './graphql/queries'
+import { GET_CASEIDS } from './graphql/queries';
 
 const useStyles = makeStyles((theme) => ({
   filterRoot: {
@@ -63,13 +63,14 @@ const groupByArray = function (xs, key) {
     }
     return rv;
   }, []);
-}
+};
 
-export function CaseFilter({ inputRef, onBlur, value, onChangeValue }) {
+export const CaseFilter = forwardRef(({onBlur, value, onChangeValue}, ref) => {
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState([]);
   const loading = open && options.length === 0;
   const [getCaseIDs, { data }] = useLazyQuery(GET_CASEIDS);
+  const inputRef = useRef();
 
   useEffect(() => {
     if (loading) {
@@ -82,13 +83,19 @@ export function CaseFilter({ inputRef, onBlur, value, onChangeValue }) {
       let caseIDs = groupByArray(data.Slides.items, 'CaseID');
       setOptions(caseIDs);
     }
-  }, [data, loading])
+  }, [data, loading]);
 
   useEffect(() => {
     if (!open) {
       setOptions([]);
     }
   }, [open]);
+
+  useImperativeHandle(ref, () => ({
+    focus: () => {
+      inputRef.current.focus();
+    }
+  }));
 
   return html`
     <${Autocomplete}
@@ -130,14 +137,14 @@ export function CaseFilter({ inputRef, onBlur, value, onChangeValue }) {
     }}
     />
   `;
-}
+});
 
 export const Statuses = Object.freeze({
   QC: 'QC Inspection',
   PATH: 'Pathology Review'
 });
 
-export function TableFilter({ status, onFilterClick }) {
+export function TableFilter({ statusFilter, onFilterClick }) {
   const classes = useStyles();
   const [searching, setSearching] = useState(false);
   const [caseIDs, setCaseIDs] = useState([]);
@@ -156,16 +163,16 @@ export function TableFilter({ status, onFilterClick }) {
       <${Zoom} in=${!searching} style=${{ transitionDelay: searching ? '0ms' : '100ms' }} appear=${false}>
         <div className=${classes.filterChips}>
           <${Chip} 
-            color=${status === Statuses.QC ? 'primary' : 'default'} 
-            variant=${status === Statuses.QC ? 'default' : 'outlined'} 
+            color=${statusFilter === Statuses.QC ? 'primary' : 'default'} 
+            variant=${statusFilter === Statuses.QC ? 'default' : 'outlined'} 
             label='QC Inspection'
             icon=${html`<${FilterListIcon} />`}
             clickable 
             onClick=${() => onFilterClick(Statuses.QC)}
           />
           <${Chip} 
-            color=${status === Statuses.PATH ? 'primary' : 'default'}
-            variant=${status === Statuses.PATH ? 'default' : 'outlined'} 
+            color=${statusFilter === Statuses.PATH ? 'primary' : 'default'}
+            variant=${statusFilter === Statuses.PATH ? 'default' : 'outlined'} 
             label='Pathology Review'
             icon=${html`<${FilterListIcon} />`}
             clickable
@@ -187,7 +194,7 @@ export function TableFilter({ status, onFilterClick }) {
       setCaseIDs([...newValue]);
       if (newValue.length == 0) searchInputRef.current.focus();
     }}
-            inputRef=${searchInputRef}
+            ref=${searchInputRef}
             onBlur=${handleSearching}
           />
         </div>
