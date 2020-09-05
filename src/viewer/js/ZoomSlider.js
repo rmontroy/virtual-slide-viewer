@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { html } from 'htm/react';
 import { withStyles } from '@material-ui/core/styles';
 import Slider from '@material-ui/core/Slider';
@@ -71,10 +72,10 @@ const ZoomSlider = (
     viewport.zoomTo(expandZoom(newValue), viewport.getCenter(), true);
   }
 
-  let marks = [1,5,10,20].map(x => ({
+  let marks = useMemo(() => [1,5,10,20].map(x => ({
     value: flattenZoom(viewport.imageToViewportZoom(x/appMag)),
     label: x+'X'
-  }));
+  })), [zoomBounds.min, appMag, viewport]);
 
   return html` 
     <${CustomSlider}

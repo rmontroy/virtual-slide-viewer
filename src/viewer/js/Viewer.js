@@ -72,7 +72,7 @@ const Viewer = () => {
       setZoom(savedView.zoom);
       viewer.viewport.zoomTo(savedView.zoom, savedView.center, true);
     });
-  }, [])
+  }, [setViewer])
 
   useEffect(() => {
     setImageIds(getImageIds());
