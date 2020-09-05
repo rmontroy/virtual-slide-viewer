@@ -1,46 +1,36 @@
 import { gql } from "@apollo/client";
 
-export const getSlide = gql`
-  query GetSlide($id: String!) {
-    getSlide(ImageID: $id) {
-      CaseID
-      Date
-      ImageID
+export const BATCH_GET_SLIDES = gql`
+  query batchGetSlides($ids: [String!]) {
+    Slides:batchGetSlides(ImageIDs: $ids) {
       SlideID
-      Time
       AppMag
       MPP
     }
   }
 `;
-export const listSlides = gql`
-  query ListSlides(
-    $filter: TableSlideFilterInput
-    $limit: Int
+
+export const GET_CASEIDS = gql`
+  query ListCaseIDs(
     $nextToken: String
   ) {
-    listSlides(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    Slides:listCaseIDs(nextToken: $nextToken) {
       items {
         CaseID
-        Date
         ImageID
-        SlideID
-        Time
-        AppMag
-        MPP
       }
       nextToken
     }
   }
 `;
 
-export const querySlidesByBarcodeIDIndex = gql`
-  query SlidesByBarcodeID(
-    $barcodeID: String!
-    $first: Int
-    $after: String
+export const GET_SLIDES_BY_STATUS = gql`
+  query SlidesByStatus(
+    $status: String!
+    $limit: Int
+    $nextToken: String
   ) {
-    querySlidesByCaseIDSlideIDIndex(CaseID: $caseID, first: $first, after: $after) {
+    Slides:querySlidesByStatus(Status: $status, limit: $limit, nextToken: $nextToken) {
       items {
         CaseID
         Date

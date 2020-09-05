@@ -8,7 +8,6 @@ import TableRow from '@material-ui/core/TableRow'
 import Paper from '@material-ui/core/Paper'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import { useTable } from 'react-table'
-import { TableFilter } from './Filters';
 
 function SlideTable({
   columns,
@@ -28,13 +27,8 @@ function SlideTable({
 
   return html`
     <${TableContainer} component=${Paper}>
-    <${Table} ...${getTableProps()}>
-      <${TableHead}>
-        <${TableRow}>
-          <${TableCell} colSpan=${visibleColumns.length}>
-            <${TableFilter} />
-          </${TableCell}>
-        </${TableRow}>
+      <${Table} ...${getTableProps()}>
+        <${TableHead}>
         ${loading && html`
           <${TableRow}>
             <${TableCell} colSpan=${visibleColumns.length} style=${{ height: 1, padding: 0 }}>

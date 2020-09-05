@@ -9,12 +9,15 @@ import parse from 'autosuggest-highlight/parse';
 import match from 'autosuggest-highlight/match';
 import Zoom from '@material-ui/core/Zoom'
 import Chip from '@material-ui/core/Chip'
+import { useLazyQuery } from '@apollo/client';
+import { GET_CASEIDS } from './graphql/queries'
 
 const useStyles = makeStyles((theme) => ({
   filterRoot: {
     position: 'relative',
+    height: 88,
     '& .MuiTextField-root': {
-      margin: theme.spacing(0, 2),
+      margin: theme.spacing(2),
     },
   },
   filterChips: {
@@ -22,7 +25,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'center',
     flexWrap: 'wrap',
     '& > *': {
-      margin: theme.spacing(1.25, 2),
+      margin: theme.spacing(3),
     },
   },
   caseSearch: {
@@ -49,31 +52,37 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function CaseFilter({inputRef, onBlur, value, onChangeValue}) {
+const groupByArray = function (xs, key) {
+  return xs.reduce(function (rv, x) {
+    let v = key instanceof Function ? key(x) : x[key];
+    let el = rv.find((r) => r && r.key === v);
+    if (el) {
+      el.items.push(x);
+    } else {
+      rv.push({ [key]: v, items: [x] });
+    }
+    return rv;
+  }, []);
+}
+
+export function CaseFilter({ inputRef, onBlur, value, onChangeValue }) {
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState([]);
   const loading = open && options.length === 0;
+  const [getCaseIDs, { data }] = useLazyQuery(GET_CASEIDS);
 
   useEffect(() => {
-    let active = true;
-
-    if (!loading) {
-      return undefined;
+    if (loading) {
+      getCaseIDs();
     }
-
-    (async () => {
-      const response = await fetch('https://country.register.gov.uk/records.json?page-size=5000');
-      const countries = await response.json();
-
-      if (active) {
-        setOptions(Object.keys(countries).map((key) => countries[key].item[0]));
-      }
-    })();
-
-    return () => {
-      active = false;
-    };
   }, [loading]);
+
+  useEffect(() => {
+    if (data && loading) {
+      let caseIDs = groupByArray(data.Slides.items, 'CaseID');
+      setOptions(caseIDs);
+    }
+  }, [data, loading])
 
   useEffect(() => {
     if (!open) {
@@ -89,16 +98,15 @@ export function CaseFilter({inputRef, onBlur, value, onChangeValue}) {
       id="case-filter"
       value=${value}
       onChange=${onChangeValue}
-      style=${{ width: 350 }}
       open=${open}
       onOpen=${() => {
-        setOpen(true);
-      }}
+      setOpen(true);
+    }}
       onClose=${() => {
-        setOpen(false);
-      }}
-      getOptionSelected=${(option, value) => option.name === value.name}
-      getOptionLabel=${(option) => option.name}
+      setOpen(false);
+    }}
+      getOptionSelected=${(option, value) => option.CaseID === value.CaseID}
+      getOptionLabel=${(option) => option.CaseID}
       options=${options}
       loading=${loading}
       renderInput=${(params) => html`
@@ -107,10 +115,10 @@ export function CaseFilter({inputRef, onBlur, value, onChangeValue}) {
         />
       `}
       renderOption=${(option, { inputValue }) => {
-        const matches = match(option.name, inputValue);
-        const parts = parse(option.name, matches);
+      const matches = match(option.CaseID, inputValue);
+      const parts = parse(option.CaseID, matches);
 
-        return html`
+      return html`
           <div>
             ${parts.map((part, index) => html`
               <span key=${index} style=${{ fontWeight: part.highlight ? 700 : 400 }}>
@@ -119,20 +127,18 @@ export function CaseFilter({inputRef, onBlur, value, onChangeValue}) {
             `)}
           </div>
         `;
-      }}
+    }}
     />
   `;
 }
 
-
-const Filters = Object.freeze({
-  QC:   Symbol('QC Inspection'),
-  PATH:  Symbol('Pathology Review'),
+export const Statuses = Object.freeze({
+  QC: 'QC Inspection',
+  PATH: 'Pathology Review'
 });
 
-export function TableFilter() {
+export function TableFilter({ status, onFilterClick }) {
   const classes = useStyles();
-  const [filter, setFilter] = useState(Filters.QC);
   const [searching, setSearching] = useState(false);
   const [caseIDs, setCaseIDs] = useState([]);
   const searchInputRef = useRef();
@@ -150,20 +156,20 @@ export function TableFilter() {
       <${Zoom} in=${!searching} style=${{ transitionDelay: searching ? '0ms' : '100ms' }} appear=${false}>
         <div className=${classes.filterChips}>
           <${Chip} 
-            color=${filter === Filters.QC ? 'primary' : 'default'} 
-            variant=${filter === Filters.QC ? 'default' : 'outlined'} 
+            color=${status === Statuses.QC ? 'primary' : 'default'} 
+            variant=${status === Statuses.QC ? 'default' : 'outlined'} 
             label='QC Inspection'
             icon=${html`<${FilterListIcon} />`}
             clickable 
-            onClick=${() => setFilter(Filters.QC)}
+            onClick=${() => onFilterClick(Statuses.QC)}
           />
           <${Chip} 
-            color=${filter === Filters.PATH ? 'primary' : 'default'}
-            variant=${filter === Filters.PATH ? 'default' : 'outlined'} 
+            color=${status === Statuses.PATH ? 'primary' : 'default'}
+            variant=${status === Statuses.PATH ? 'default' : 'outlined'} 
             label='Pathology Review'
             icon=${html`<${FilterListIcon} />`}
             clickable
-            onClick=${() => setFilter(Filters.PATH)}
+            onClick=${() => onFilterClick(Statuses.PATH)}
           />
           <${Chip}
             variant='outlined'
@@ -178,9 +184,9 @@ export function TableFilter() {
           <${CaseFilter}
             value=${caseIDs}
             onChangeValue=${(event, newValue) => {
-              setCaseIDs([...newValue]);
-              if (newValue.length == 0) searchInputRef.current.focus();
-            }}
+      setCaseIDs([...newValue]);
+      if (newValue.length == 0) searchInputRef.current.focus();
+    }}
             inputRef=${searchInputRef}
             onBlur=${handleSearching}
           />

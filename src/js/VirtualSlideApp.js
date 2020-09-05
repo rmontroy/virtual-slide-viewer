@@ -17,10 +17,11 @@ import '@material/fab/dist/mdc.fab.css'
 import '@material/ripple/dist/mdc.ripple.css'
 import '@rmwc/icon/icon.css'
 import SlideTable from './SlideTable'
+import { TableFilter, Statuses } from './Filters';
 
-import { ApolloClient, InMemoryCache, useQuery } from "@apollo/client"
+import { ApolloClient, InMemoryCache, useQuery, ApolloProvider } from "@apollo/client"
 import config from "./app_config"
-import { listSlides } from './graphql/queries'
+import { GET_SLIDES_BY_STATUS } from './graphql/queries'
 
 import '../css/style.css'
 
@@ -111,7 +112,8 @@ function makeColumns(renderCheckbox) {
   }
 
 function VirtualSlideApp() {
-  const { loading, error, data, refetch } = useQuery(listSlides, {client});
+  const [status, setFilter] = useState(Statuses.QC);
+  const { loading, error, data, refetch } = useQuery(GET_SLIDES_BY_STATUS, {client, variables: { status }});
   const [selectedImages, setSelectedImages] = useState({});
   const toggleImageSelected = row => () => {
     const selectedImagesNew = {...selectedImages};
@@ -137,21 +139,27 @@ function VirtualSlideApp() {
   });
   
   return html`
-    <div>
-      <${AppBar}>
-        <${Fab} trailingIcon="visibility" label="View" exited=${Object.keys(selectedImages).length == 0} tag="a" href=${"viewer?imageIds=" + Object.keys(selectedImages)} />
-        <${Tooltip} title="Refetch">
-          <${TopAppBarActionItem} icon="refresh" onClick=${() => refetch()} />
-        </${Tooltip}>
-      </${AppBar}>
-      ${error && html`<p>Error :( ${error}</p>`}
-      <${SlideTable} 
-        columns=${columns} 
-        data=${data ? data.listSlides.items : []} 
-        loading=${loading} 
-        getRowProps=${rowProps}
-      />
-    </div>
+    <${ApolloProvider} client=${client}>
+      <div>
+        <${AppBar}>
+          <${Fab} trailingIcon="visibility" label="View" exited=${Object.keys(selectedImages).length == 0} tag="a" href=${"viewer?imageIds=" + Object.keys(selectedImages)} />
+          <${Tooltip} title="Refetch">
+            <${TopAppBarActionItem} icon="refresh" onClick=${() => refetch()} />
+          </${Tooltip}>
+        </${AppBar}>
+        <${TableFilter}
+          status=${status}
+          onFilterClick=${(status) => setFilter(status)}
+        />
+        ${error && html`<p>Error :( ${error.message}</p>`}
+        <${SlideTable} 
+          columns=${columns} 
+          data=${data ? data.Slides.items : []} 
+          loading=${loading} 
+          getRowProps=${rowProps}
+        />
+      </div>
+    </${ApolloProvider}>
   `
 }
 
