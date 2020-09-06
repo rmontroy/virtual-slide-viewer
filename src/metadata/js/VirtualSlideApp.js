@@ -1,29 +1,13 @@
 import { useState, useEffect, useMemo, useReducer } from 'react';
 import { html } from 'htm/react';
-import {
-  TopAppBar,
-  TopAppBarRow,
-  TopAppBarSection,
-  TopAppBarTitle,
-  TopAppBarActionItem,
-  TopAppBarFixedAdjust
-} from '@rmwc/top-app-bar';
-import Fab from '@material-ui/core/Fab';
-import VisibilityIcon from '@material-ui/icons/Visibility';
-import Zoom from '@material-ui/core/Zoom';
+import AppBar from './AppBar';
 import Tooltip from '@material-ui/core/Tooltip';
 import Checkbox from '@material-ui/core/Checkbox';
-import '@material/top-app-bar/dist/mdc.top-app-bar.css';
-import '@material/icon-button/dist/mdc.icon-button.css';
-import '@material/ripple/dist/mdc.ripple.css';
-import '@rmwc/icon/icon.css';
 import SlideTable from './SlideTable';
 import { TableFilter, Statuses } from './Filters';
-
 import { ApolloClient, InMemoryCache, useQuery, useLazyQuery, ApolloProvider } from '@apollo/client';
 import config from './app_config';
 import { GET_SLIDES_BY_STATUS, BATCH_GET_SLIDES } from './graphql/queries';
-
 import '../css/style.css';
 
 const client = new ApolloClient({
@@ -33,27 +17,6 @@ const client = new ApolloClient({
     'x-api-key': config.apiKey
   }
 });
-
-function AppBar({
-  children
-}) {
-  let title = config.appTitle || 'Virtual Slide';
-  return html`
-    <div>
-      <${TopAppBar} fixed>
-        <${TopAppBarRow}>
-          <${TopAppBarSection} alignStart>
-            <${TopAppBarTitle}>${title}</${TopAppBarTitle}>
-          </${TopAppBarSection}>
-          <${TopAppBarSection} alignEnd>
-            ${children}
-          </${TopAppBarSection}>
-        </${TopAppBarRow}>
-      </${TopAppBar}>
-      <${TopAppBarFixedAdjust} />
-    </div>
-  `
-}
 
 function makeColumns(renderCheckbox) {
   return [
@@ -167,17 +130,7 @@ function VirtualSlideApp() {
   return html`
     <${ApolloProvider} client=${client}>
       <div>
-        <${AppBar}>
-          <${Zoom} in=${selectedImages.length > 0}>
-            <${Fab} href=${"viewer?imageIds=" + selectedImages} variant="extended" color="primary" >
-              <${VisibilityIcon} style=${{marginRight: 8}} />
-              View
-            </${Fab}>
-          </${Zoom}>
-          <${Tooltip} title="Refetch">
-            <${TopAppBarActionItem} icon="refresh" onClick=${() => refetch()} />
-          </${Tooltip}>
-        </${AppBar}>
+        <${AppBar} title=${config.appTitle} selectedImages=${selectedImages} refetch=${currentQuery.refetch} />
         <${TableFilter}
           statusFilter=${statusFilter}
           setCasesFilter=${setCasesFilter}
