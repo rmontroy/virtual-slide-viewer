@@ -96,12 +96,12 @@ function VirtualSlideApp() {
     let currentQuery = byStatus ? {...QueryByStatus} : {...QueryByCase};
     currentQuery.data = currentQuery.data ? (byStatus ? QueryByStatus.data.Slides.items : QueryByCase.data.Slides) : [];
     setCurrentQuery(currentQuery);
-  }, [QueryByStatus, QueryByCase]);
+  }, [QueryByStatus, QueryByCase, byStatus]);
 
   useEffect(() => {
     if (casesFilter.length > 0)
       getCaseData();
-  }, [casesFilter]);
+  }, [casesFilter, getCaseData]);
 
   // This is a dumb/expensive way to render row/item selection (since we're calling makeColumns()
   // whenever selectedImages changes), but it'll have to do until react-table v8 is released, since

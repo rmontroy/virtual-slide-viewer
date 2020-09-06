@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { html } from 'htm/react';
 import config from './config';
 import OpenSeadragon from 'openseadragon';
@@ -17,29 +17,6 @@ const client = new ApolloClient({
     'x-api-key': config.apiKey
   }
 });
-
-
-function parseQueryString() {
-  let params = {};
-  let search = window.location.search.slice(1);
-  if (search) {
-    let parts = search.split("&");
-
-    parts.forEach(function (part) {
-      let subparts = part.split("=");
-      let key = subparts[0];
-      let value = subparts[1];
-      params[key] = value;
-    });
-  }
-  return params;
-}
-
-function getImageIds() {
-  let params = parseQueryString();
-  return params["imageIds"] ? params["imageIds"].split(",") : [];  
-}
-
 
 const Viewer = () => {
   const [imageIds, setImageIds] = useState([]);
@@ -66,28 +43,50 @@ const Viewer = () => {
       setPage(e.page);
       prevPageRef.current = e.page;
     });
-    viewer.addHandler('open', (e) => {
+    viewer.addHandler('open', () => {
       setZoomBounds({min: viewer.viewport.getMinZoom(), max: viewer.viewport.getMaxZoom()});
       let savedView = savedViewsRef.current[viewer.currentPage()] || {zoom: viewer.viewport.getZoom(), center: viewer.viewport.getCenter()};
       setZoom(savedView.zoom);
       viewer.viewport.zoomTo(savedView.zoom, savedView.center, true);
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setViewer])
 
+  const parseQueryString = useCallback(() => {
+    let params = {};
+    let search = window.location.search.slice(1);
+    if (search) {
+      let parts = search.split("&");
+  
+      parts.forEach(function (part) {
+        let subparts = part.split("=");
+        let key = subparts[0];
+        let value = subparts[1];
+        params[key] = value;
+      });
+    }
+    return params;
+  }, []);
+  
+  const getImageIds = useCallback(() => {
+    let params = parseQueryString();
+    return params["imageIds"] ? params["imageIds"].split(",") : [];  
+  }, [parseQueryString]);
+    
   useEffect(() => {
     setImageIds(getImageIds());
-  }, [window.location.search])
+  }, [getImageIds])
 
   useEffect(() => {
     setTileSources(imageIds.map(imageId => config.imageUrlTemplate(imageId)));
-    savedViewsRef.current = imageIds.map(x => 0);
+    savedViewsRef.current = imageIds.map(() => 0);
     prevPageRef.current = 0;
   }, [imageIds])
   
   useEffect(() => {
     if (!viewer || !tileSources) return;
     viewer.open(tileSources);
-  }, [tileSources]);
+  }, [tileSources, viewer]);
   
   useEffect(() => {
     if (loading) return;
@@ -104,9 +103,9 @@ const Viewer = () => {
     //       },
     //     });
     
-  }, [page, data]);
+  }, [page, data, loading, viewer]);
       
-  function initOpenSeadragon() {
+  const initOpenSeadragon = useCallback(() => {
     
     let osd = OpenSeadragon({
       constrainDuringPan: true,
@@ -120,7 +119,7 @@ const Viewer = () => {
       showNavigator: true,
       showNavigationControl: false,
       //toolbar: "toolbarDiv",
-      tileSources: tileSources,
+      tileSources: [],
       maxZoomPixelRatio: 1,
       visibilityRatio: 0.5,
       sequenceMode: true,
@@ -145,7 +144,7 @@ const Viewer = () => {
     }
     
     return osd;
-  }
+  }, []);
 
   let currentSlide = loading ? {} : data.Slides[page];
     

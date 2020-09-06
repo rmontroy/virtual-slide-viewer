@@ -47,7 +47,7 @@ function SlideTable({
         `))}
       </${TableHead}>
       <${TableBody}>
-        ${rows.map((row, i) => {
+        ${rows.map((row) => {
           prepareRow(row)
           return html`
             <${TableRow} ...${row.getRowProps(getRowProps(row))}>

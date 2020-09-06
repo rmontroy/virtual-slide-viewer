@@ -1,3 +1,4 @@
+/* eslint-disable */
 //openseadragon-measurement-tool.js
 // Measurement
 // proposal:

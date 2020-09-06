@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { html } from 'htm/react';
 import { withStyles } from '@material-ui/core/styles';
 import Slider from '@material-ui/core/Slider';
@@ -63,7 +63,7 @@ const ZoomSlider = (
   }) => {
 
   // Conversion functions
-  const flattenZoom = (zoom) => Math.log2(zoom/zoomBounds.min);
+  const flattenZoom = useCallback((zoom) => Math.log2(zoom/zoomBounds.min), [zoomBounds.min]);
   const expandZoom = (zoom) => 2 ** zoom * zoomBounds.min;
   const scaleToMag = (value) => Number(viewport.viewportToImageZoom(expandZoom(value)) * appMag).toFixed(1) + "X";
 
@@ -75,7 +75,7 @@ const ZoomSlider = (
   let marks = useMemo(() => [1,5,10,20].map(x => ({
     value: flattenZoom(viewport.imageToViewportZoom(x/appMag)),
     label: x+'X'
-  })), [zoomBounds.min, appMag, viewport]);
+  })), [flattenZoom, viewport, appMag]);
 
   return html` 
     <${CustomSlider}

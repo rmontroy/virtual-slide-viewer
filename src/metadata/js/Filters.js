@@ -1,3 +1,5 @@
+/* eslint-disable react/display-name */
+/* eslint-disable react/prop-types */
 import { useState, useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import { html } from 'htm/react';
 import { makeStyles } from '@material-ui/core/styles';
@@ -57,7 +59,7 @@ const groupByArray = function (xs, key, tr = (x) => x) {
     let v = key instanceof Function ? key(x) : x[key];
     let existing = rv.find((r) => r && r.key === v);
     if (existing) {
-      el.items.push(tr(x));
+      existing.items.push(tr(x));
     } else {
       rv.push({ [key]: v, items: [tr(x)] });
     }
@@ -76,7 +78,7 @@ export const CaseFilter = forwardRef(({onBlur, selectedCases, onChangeValue}, re
     if (loading) {
       fetchOptions();
     }
-  }, [loading]);
+  }, [loading, fetchOptions]);
 
   useEffect(() => {
     if (data && loading) {
@@ -161,7 +163,7 @@ export function TableFilter({ statusFilter, setCasesFilter, onFilterClick }) {
   useEffect(() => {
     let imageIDs = selectedCases.reduce((flat, caseID) => flat.concat(caseID.items), []);
     setCasesFilter(imageIDs);
-  }, [selectedCases]);
+  }, [selectedCases, setCasesFilter]);
 
   return html`
     <div className=${classes.filterRoot}>

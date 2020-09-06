@@ -1,3 +1,4 @@
+/* eslint-disable */
 // TODO list:
 // setting id/element
 // set icon size
