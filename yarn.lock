@@ -1388,21 +1388,6 @@
     "@material/feature-targeting" "^5.1.0"
     "@material/theme" "^5.1.0"
 
-"@material/fab@^5.1.0":
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/@material/fab/-/fab-5.1.0.tgz#4a38fd4d7579f5b7aea6c8d2b60cb3ded77945d3"
-  integrity sha512-mq9I0l4hnsMS+Ko/W7e5A8epElIp3H0UFGJzMlZX5VJBWBpfnykj7fLYnVWtyJ+zFgdLv6rpO/307Kto7gi5Pg==
-  dependencies:
-    "@material/animation" "^5.1.0"
-    "@material/elevation" "^5.1.0"
-    "@material/feature-targeting" "^5.1.0"
-    "@material/ripple" "^5.1.0"
-    "@material/rtl" "^5.1.0"
-    "@material/shape" "^5.1.0"
-    "@material/theme" "^5.1.0"
-    "@material/touch-target" "^5.1.0"
-    "@material/typography" "^5.1.0"
-
 "@material/feature-targeting@^5.1.0":
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/@material/feature-targeting/-/feature-targeting-5.1.0.tgz#49265bbd4ff59b1cd20a385b5547f7c246cb1955"
@@ -1467,14 +1452,6 @@
     "@material/typography" "^5.1.0"
     tslib "^1.9.3"
 
-"@material/touch-target@^5.1.0":
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/@material/touch-target/-/touch-target-5.1.0.tgz#0e03ba901acf118c91eb4cfa02034964424565a2"
-  integrity sha512-lR3eoL1D0I/hyEK6I7bMFDBy/pE0yYvjYUZtL1vC7+2i54A4FgQ2hwnpQJVaZQXzrHdj6xsXmODphmUsH5gqPA==
-  dependencies:
-    "@material/base" "^5.1.0"
-    "@material/feature-targeting" "^5.1.0"
-
 "@material/typography@^5.1.0":
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/@material/typography/-/typography-5.1.0.tgz#b346f4139b231f17c84c439a1c7af311c40c5844"
@@ -1502,18 +1479,6 @@
     hyperform "^0.11.0"
     mutation-observer "^1.0.3"
     tslib "^1.10.0"
-
-"@rmwc/fab@^6.1.3":
-  version "6.1.3"
-  resolved "https://registry.yarnpkg.com/@rmwc/fab/-/fab-6.1.3.tgz#95f2c95f944666d6b675cf572e835a242bbf9758"
-  integrity sha512-s2rWfAiA9vAScIkH/lTcg9vIBMLR4Q80rJwDyWu234yj1v06DtsR1SRkuoJYArG1DtIWVE9pVl2U4e9o7jAOJg==
-  dependencies:
-    "@material/fab" "^5.1.0"
-    "@rmwc/base" "^6.0.14"
-    "@rmwc/icon" "^6.1.3"
-    "@rmwc/provider" "^6.1.3"
-    "@rmwc/ripple" "^6.1.3"
-    "@rmwc/types" "^6.0.5"
 
 "@rmwc/icon-button@^6.1.3":
   version "6.1.3"

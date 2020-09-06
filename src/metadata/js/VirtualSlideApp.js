@@ -8,12 +8,13 @@ import {
   TopAppBarActionItem,
   TopAppBarFixedAdjust
 } from '@rmwc/top-app-bar';
-import { Fab } from '@rmwc/fab';
+import Fab from '@material-ui/core/Fab';
+import VisibilityIcon from '@material-ui/icons/Visibility';
+import Zoom from '@material-ui/core/Zoom';
 import Tooltip from '@material-ui/core/Tooltip';
 import Checkbox from '@material-ui/core/Checkbox';
 import '@material/top-app-bar/dist/mdc.top-app-bar.css';
 import '@material/icon-button/dist/mdc.icon-button.css';
-import '@material/fab/dist/mdc.fab.css';
 import '@material/ripple/dist/mdc.ripple.css';
 import '@rmwc/icon/icon.css';
 import SlideTable from './SlideTable';
@@ -167,7 +168,12 @@ function VirtualSlideApp() {
     <${ApolloProvider} client=${client}>
       <div>
         <${AppBar}>
-          <${Fab} trailingIcon="visibility" label="View" exited=${selectedImages.length == 0} tag="a" href=${"viewer?imageIds=" + selectedImages} />
+          <${Zoom} in=${selectedImages.length > 0}>
+            <${Fab} href=${"viewer?imageIds=" + selectedImages} variant="extended" color="primary" >
+              <${VisibilityIcon} style=${{marginRight: 8}} />
+              View
+            </${Fab}>
+          </${Zoom}>
           <${Tooltip} title="Refetch">
             <${TopAppBarActionItem} icon="refresh" onClick=${() => refetch()} />
           </${Tooltip}>
