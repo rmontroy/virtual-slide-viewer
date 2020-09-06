@@ -52,36 +52,36 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const groupByArray = function (xs, key) {
+const groupByArray = function (xs, key, tr = (x) => x) {
   return xs.reduce(function (rv, x) {
     let v = key instanceof Function ? key(x) : x[key];
-    let el = rv.find((r) => r && r.key === v);
-    if (el) {
-      el.items.push(x);
+    let existing = rv.find((r) => r && r.key === v);
+    if (existing) {
+      el.items.push(tr(x));
     } else {
-      rv.push({ [key]: v, items: [x] });
+      rv.push({ [key]: v, items: [tr(x)] });
     }
     return rv;
   }, []);
 };
 
-export const CaseFilter = forwardRef(({onBlur, value, onChangeValue}, ref) => {
+export const CaseFilter = forwardRef(({onBlur, selectedCases, onChangeValue}, ref) => {
   const [open, setOpen] = useState(false);
   const [options, setOptions] = useState([]);
   const loading = open && options.length === 0;
-  const [getCaseIDs, { data }] = useLazyQuery(GET_CASEIDS);
+  const [fetchOptions, { data }] = useLazyQuery(GET_CASEIDS);
   const inputRef = useRef();
 
   useEffect(() => {
     if (loading) {
-      getCaseIDs();
+      fetchOptions();
     }
   }, [loading]);
 
   useEffect(() => {
     if (data && loading) {
-      let caseIDs = groupByArray(data.Slides.items, 'CaseID');
-      setOptions(caseIDs);
+      let options = groupByArray(data.Slides.items, 'CaseID', item => item["ImageID"]);
+      setOptions(options);
     }
   }, [data, loading]);
 
@@ -103,7 +103,7 @@ export const CaseFilter = forwardRef(({onBlur, value, onChangeValue}, ref) => {
       limitTags=${2}
       filterSelectedOptions
       id="case-filter"
-      value=${value}
+      value=${selectedCases}
       onChange=${onChangeValue}
       open=${open}
       onOpen=${() => {
@@ -144,19 +144,24 @@ export const Statuses = Object.freeze({
   PATH: 'Pathology Review'
 });
 
-export function TableFilter({ statusFilter, onFilterClick }) {
+export function TableFilter({ statusFilter, setCasesFilter, onFilterClick }) {
   const classes = useStyles();
   const [searching, setSearching] = useState(false);
-  const [caseIDs, setCaseIDs] = useState([]);
+  const [selectedCases, setSelectedCases] = useState([]);
   const searchInputRef = useRef();
 
   const handleSearching = () => {
-    setSearching((prev) => !prev || caseIDs.length > 0);
+    setSearching((prev) => !prev || selectedCases.length > 0);
   };
 
   useEffect(() => {
     if (searching) searchInputRef.current.focus();
-  }, [searching])
+  }, [searching]);
+
+  useEffect(() => {
+    let imageIDs = selectedCases.reduce((flat, caseID) => flat.concat(caseID.items), []);
+    setCasesFilter(imageIDs);
+  }, [selectedCases]);
 
   return html`
     <div className=${classes.filterRoot}>
@@ -189,11 +194,11 @@ export function TableFilter({ statusFilter, onFilterClick }) {
       <${Zoom} in=${searching} style=${{ transitionDelay: searching ? '100ms' : '0ms' }}>
         <div className=${classes.caseSearch}>
           <${CaseFilter}
-            value=${caseIDs}
+            selectedCases=${selectedCases}
             onChangeValue=${(event, newValue) => {
-      setCaseIDs([...newValue]);
-      if (newValue.length == 0) searchInputRef.current.focus();
-    }}
+              setSelectedCases([...newValue]);
+              if (newValue.length == 0) searchInputRef.current.focus();
+            }}
             ref=${searchInputRef}
             onBlur=${handleSearching}
           />

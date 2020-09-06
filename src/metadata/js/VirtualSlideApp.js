@@ -19,9 +19,9 @@ import '@rmwc/icon/icon.css';
 import SlideTable from './SlideTable';
 import { TableFilter, Statuses } from './Filters';
 
-import { ApolloClient, InMemoryCache, useQuery, ApolloProvider } from '@apollo/client';
+import { ApolloClient, InMemoryCache, useQuery, useLazyQuery, ApolloProvider } from '@apollo/client';
 import config from './app_config';
-import { GET_SLIDES_BY_STATUS } from './graphql/queries';
+import { GET_SLIDES_BY_STATUS, BATCH_GET_SLIDES } from './graphql/queries';
 
 import '../css/style.css';
 
@@ -121,9 +121,24 @@ function selectedImagesReducer(selectedImages, action) {
 
 function VirtualSlideApp() {
   const [statusFilter, setStatusFilter] = useState(Statuses.QC);
-  const { loading, error, data, refetch } = useQuery(GET_SLIDES_BY_STATUS, {client, variables: { statusFilter }});
+  const [casesFilter, setCasesFilter] = useState([]);
+  const QueryByStatus = useQuery(GET_SLIDES_BY_STATUS, {client, variables: { statusFilter }});
+  const [getCaseData, QueryByCase] = useLazyQuery(BATCH_GET_SLIDES, {client, variables: { imageIds: casesFilter }});
+  const [currentQuery, setCurrentQuery] = useState({loading: false, error: null, data: [], refetch: null});
   const [selectedImages, toggleImageSelected] = useReducer(selectedImagesReducer, []);
-  
+  const byStatus = casesFilter.length == 0;
+
+  useEffect(() => {
+    let currentQuery = byStatus ? {...QueryByStatus} : {...QueryByCase};
+    currentQuery.data = currentQuery.data ? (byStatus ? QueryByStatus.data.Slides.items : QueryByCase.data.Slides) : [];
+    setCurrentQuery(currentQuery);
+  }, [QueryByStatus, QueryByCase]);
+
+  useEffect(() => {
+    if (casesFilter.length > 0)
+      getCaseData();
+  }, [casesFilter]);
+
   // This is a dumb/expensive way to render row/item selection (since we're calling makeColumns()
   // whenever selectedImages changes), but it'll have to do until react-table v8 is released, since
   // the useRowSelect hook is seriously broken in react-table v7.
@@ -145,8 +160,8 @@ function VirtualSlideApp() {
   });
 
   useEffect(() => {
-    error && console.error(error);
-  }, [error])
+    currentQuery.error && console.error(currentQuery.error);
+  }, [currentQuery.error])
   
   return html`
     <${ApolloProvider} client=${client}>
@@ -159,13 +174,14 @@ function VirtualSlideApp() {
         </${AppBar}>
         <${TableFilter}
           statusFilter=${statusFilter}
+          setCasesFilter=${setCasesFilter}
           onFilterClick=${(statusFilter) => setStatusFilter(statusFilter)}
         />
-        ${error && html`<p>Error :( ${error.message}</p>`}
+        ${currentQuery.error && html`<p>Error :( ${currentQuery.error.message}</p>`}
         <${SlideTable} 
           columns=${columns} 
-          data=${data ? data.Slides.items : []} 
-          loading=${loading} 
+          data=${currentQuery.data} 
+          loading=${currentQuery.loading} 
           getRowProps=${rowProps}
         />
       </div>
