@@ -27,7 +27,7 @@ const Viewer = () => {
   const [viewer, setViewer] = useState();
   const [zoom, setZoom] = useState(0);
   const savedViewsRef = useRef([]);
-  const [zoomBounds, setZoomBounds] = useState();
+  const [zoomBounds, setZoomBounds] = useState({min:0, max:0});
   
   useEffect(() => {
     // Need to wait until mounting element is rendered before creating viewer

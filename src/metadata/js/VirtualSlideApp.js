@@ -56,12 +56,12 @@ function makeColumns(renderCheckbox) {
           <${Tooltip} title=${html`
             <img
               style=${{ height: 200, "verticalAlign": "middle" }}
-              src=${imgSrc} alt="label"
+              src=${imgSrc} alt="thumbnail"
             />
           `}>
             <img
               style=${{ height: 72, "verticalAlign": "middle" }}
-              src=${imgSrc} alt="label"
+              src=${imgSrc} alt="thumbnail"
             />
           </${Tooltip}>
         `
