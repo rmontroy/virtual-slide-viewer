@@ -6,7 +6,8 @@ module.exports = {
       "cmd": "eslint 'src/**/*.{js,jsx,ts,tsx}'",
       // Optional: Use npm package "watch" to run on every file change
       "watch": "watch \"$1\" src"
-    }]
+    }],
+    ["@snowpack/plugin-optimize", { }]
   ],
   "buildOptions": {
     "clean": true,
@@ -16,4 +17,7 @@ module.exports = {
     'src/metadata': '/',
     'src/viewer': '/viewer'
   },
+  "installOptions": {
+    "sourceMap": true
+  }
 }

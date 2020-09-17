@@ -38,12 +38,10 @@ export default function AppBar({title, selectedImages, refetch}) {
             ${title || 'Virtual Slide'}
           </${Typography}>
           <div className=${classes.sectionActions}>
-            <${Zoom} in=${selectedImages.length > 0}>
-              <${Fab} href=${"viewer?imageIds=" + selectedImages} variant="extended" color="secondary"  size="medium">
-                <${VisibilityIcon} style=${{marginRight: 8}} />
-                View
-              </${Fab}>
-            </${Zoom}>
+            <${Fab} href=${"viewer/index.html?imageIds=" + selectedImages} variant="extended" color="secondary"  size="medium" disabled=${selectedImages.length == 0}>
+              <${VisibilityIcon} style=${{marginRight: 8}} />
+              View
+            </${Fab}>
             <${Tooltip} title="Refetch">
               <${IconButton}
                   edge="start"
