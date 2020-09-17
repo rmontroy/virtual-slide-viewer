@@ -9,6 +9,7 @@ import { ApolloClient, InMemoryCache, useQuery, useLazyQuery, ApolloProvider } f
 import config from './app_config';
 import { GET_SLIDES_BY_STATUS, BATCH_GET_SLIDES } from './graphql/queries';
 import '../css/style.css';
+import { TextField } from '@material-ui/core';
 
 const client = new ApolloClient({
   uri: config.graphqlUri,
@@ -68,8 +69,26 @@ function makeColumns(renderCheckbox) {
       },
     },
     { Header: 'Image ID', accessor: 'ImageID' },
-    { Header: 'Slide ID', accessor: 'SlideID' },
-    { Header: 'Case ID', accessor: 'CaseID' },
+    {
+      Header: 'Slide ID',
+      accessor: 'SlideID',
+      id: 'slideid',
+      Cell: ({ value }) => html`
+        <${TextField}
+          defaultValue=${value}
+          onClick=${event => event.stopPropagation()}
+        />`
+    },
+    {
+      Header: 'Case ID',
+      accessor: 'CaseID',
+      id: 'caseid',
+      Cell: ({ value }) => html`
+        <${TextField}
+          defaultValue=${value}
+          onClick=${event => event.stopPropagation()}
+        />`
+    },
     { Header: 'Scan Date', accessor: row => html`<div>${row.Date}<br/>${row.Time}</div>` },
     { Header: 'Mag', accessor: 'AppMag', Cell: ({value}) => `${value}X` },
   ]
