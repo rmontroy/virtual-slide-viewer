@@ -56,15 +56,14 @@ const useStyles = makeStyles((theme) => ({
 
 const groupByArray = function (xs, key, tr = (x) => x) {
   return xs.reduce(function (rv, x) {
-    let v = key instanceof Function ? key(x) : x[key];
-    let existing = rv.find((r) => r && r.key === v);
+    let existing = rv.find((r) => r && r[key] === x[key]);
     if (existing) {
       existing.items.push(tr(x));
     } else {
-      rv.push({ [key]: v, items: [tr(x)] });
+      rv.push({ [key]: x[key], items: [tr(x)] });
     }
     return rv;
-  }, []);
+  }, []).sort((a,b) => a[key].localeCompare(b[key]));
 };
 
 export const CaseFilter = forwardRef(({onBlur, selectedCases, onChangeValue}, ref) => {
