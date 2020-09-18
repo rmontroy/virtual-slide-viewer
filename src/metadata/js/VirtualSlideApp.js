@@ -1,15 +1,14 @@
-import { useState, useEffect, useMemo, useReducer } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { html } from 'htm/react';
 import AppBar from './AppBar';
 import Tooltip from '@material-ui/core/Tooltip';
-import Checkbox from '@material-ui/core/Checkbox';
 import SlideTable from './SlideTable';
 import { TableFilter, Statuses } from './Filters';
 import { ApolloClient, InMemoryCache, useQuery, useLazyQuery, ApolloProvider } from '@apollo/client';
 import config from './app_config';
 import { GET_SLIDES_BY_STATUS, BATCH_GET_SLIDES } from './graphql/queries';
 import '../css/style.css';
-import { TextField } from '@material-ui/core';
+import TextField from '@material-ui/core/TextField';
 
 const client = new ApolloClient({
   uri: config.graphqlUri,
@@ -19,88 +18,74 @@ const client = new ApolloClient({
   }
 });
 
-function makeColumns(renderCheckbox) {
-  return [
-    // A column for selection
-    {
-      id: 'selection',
-      Cell: renderCheckbox
+const COLUMNS = 
+[
+  {
+    Header: 'Label',
+    accessor: 'ImageID',
+    id: 'label',
+    Cell: ({value}) => {
+      const imgSrc = `${config.vsv_bucket}/${value}/label.jpg`
+      return html`
+        <${Tooltip} title=${html`
+          <img
+            style=${{ height: 200, "verticalAlign": "middle" }}
+            src=${imgSrc} alt="label"
+          />
+        `}>
+          <img
+            style=${{ height: 72, "verticalAlign": "middle" }}
+            src=${imgSrc} alt="label"
+          />
+        </${Tooltip}>
+      `
     },
-    {
-      Header: 'Label',
-      accessor: 'ImageID',
-      id: 'label',
-      Cell: ({value}) => {
-        const imgSrc = `${config.vsv_bucket}/${value}/label.jpg`
-        return html`
-          <${Tooltip} title=${html`
-            <img
-              style=${{ height: 200, "verticalAlign": "middle" }}
-              src=${imgSrc} alt="label"
-            />
-          `}>
-            <img
-              style=${{ height: 72, "verticalAlign": "middle" }}
-              src=${imgSrc} alt="label"
-            />
-          </${Tooltip}>
-        `
-      },
+  },
+  {
+    Header: 'Thumbnail',
+    accessor: 'ImageID',
+    id: 'thumbnail',
+    Cell: ({value}) => {
+      const imgSrc = `${config.vsv_bucket}/${value}/thumbnail.jpg`
+      return html`
+        <${Tooltip} title=${html`
+          <img
+            style=${{ height: 200, "verticalAlign": "middle" }}
+            src=${imgSrc} alt="thumbnail"
+          />
+        `}>
+          <img
+            style=${{ height: 72, "verticalAlign": "middle" }}
+            src=${imgSrc} alt="thumbnail"
+          />
+        </${Tooltip}>
+      `
     },
-    {
-      Header: 'Thumbnail',
-      accessor: 'ImageID',
-      id: 'thumbnail',
-      Cell: ({value}) => {
-        const imgSrc = `${config.vsv_bucket}/${value}/thumbnail.jpg`
-        return html`
-          <${Tooltip} title=${html`
-            <img
-              style=${{ height: 200, "verticalAlign": "middle" }}
-              src=${imgSrc} alt="thumbnail"
-            />
-          `}>
-            <img
-              style=${{ height: 72, "verticalAlign": "middle" }}
-              src=${imgSrc} alt="thumbnail"
-            />
-          </${Tooltip}>
-        `
-      },
-    },
-    { Header: 'Image ID', accessor: 'ImageID' },
-    {
-      Header: 'Slide ID',
-      accessor: 'SlideID',
-      id: 'slideid',
-      Cell: ({ value }) => html`
-        <${TextField}
-          defaultValue=${value}
-          onClick=${event => event.stopPropagation()}
-        />`
-    },
-    {
-      Header: 'Case ID',
-      accessor: 'CaseID',
-      id: 'caseid',
-      Cell: ({ value }) => html`
-        <${TextField}
-          defaultValue=${value}
-          onClick=${event => event.stopPropagation()}
-        />`
-    },
-    { Header: 'Scan Date', accessor: row => html`<div>${row.Date}<br/>${row.Time}</div>` },
-    { Header: 'Mag', accessor: 'AppMag', Cell: ({value}) => `${value}X` },
-  ]
-}
-
-function selectedImagesReducer(selectedImages, action) {
-  const index = selectedImages.indexOf(action.imageID)
-  if (index >= 0)
-    return [...selectedImages.slice(0, index), ...selectedImages.slice(index+1)];
-  else
-    return [...selectedImages, action.imageID];
-}
+  },
+  { Header: 'Image ID', accessor: 'ImageID' },
+  {
+    Header: 'Slide ID',
+    accessor: 'SlideID',
+    id: 'slideid',
+    Cell: ({ value }) => html`
+      <${TextField}
+        defaultValue=${value}
+        onClick=${event => event.stopPropagation()}
+      />`
+  },
+  {
+    Header: 'Case ID',
+    accessor: 'CaseID',
+    id: 'caseid',
+    Cell: ({ value }) => html`
+      <${TextField}
+        defaultValue=${value}
+        onClick=${event => event.stopPropagation()}
+      />`
+  },
+  { Header: 'Scan Date', accessor: row => html`<div>${row.Date}<br/>${row.Time}</div>` },
+  { Header: 'Mag', accessor: 'AppMag', Cell: ({value}) => `${value}X` },
+];
 
 function VirtualSlideApp() {
   const [statusFilter, setStatusFilter] = useState(Statuses.QC);
@@ -108,7 +93,7 @@ function VirtualSlideApp() {
   const QueryByStatus = useQuery(GET_SLIDES_BY_STATUS, {client, variables: { statusFilter }});
   const [getCaseData, QueryByCase] = useLazyQuery(BATCH_GET_SLIDES, {client, variables: { imageIds: casesFilter }});
   const [currentQuery, setCurrentQuery] = useState({loading: false, error: null, data: [], refetch: null});
-  const [selectedImages, toggleImageSelected] = useReducer(selectedImagesReducer, []);
+  const [selectedImages, setSelectedImages] = useState([]);
   const byStatus = casesFilter.length == 0;
 
   useEffect(() => {
@@ -122,30 +107,15 @@ function VirtualSlideApp() {
       getCaseData();
   }, [casesFilter, getCaseData]);
 
-  // This is a dumb/expensive way to render row/item selection (since we're calling makeColumns()
-  // whenever selectedImages changes), but it'll have to do until react-table v8 is released, since
-  // the useRowSelect hook is seriously broken in react-table v7.
-  // https://github.com/tannerlinsley/react-table/issues/2171#issuecomment-668123434
-  // https://github.com/tannerlinsley/react-table/issues/2170#issuecomment-668120478
-  // https://github.com/tannerlinsley/react-table/issues/2170#issuecomment-678419781
-  const columns = useMemo(() => {
-    const renderCheckbox = ({ row }) => html`
-        <${Checkbox}
-          checked=${selectedImages.includes(row.values["ImageID"])}
-          onClick=${event => event.stopPropagation()}
-          onChange=${() => toggleImageSelected({imageID: row.values["ImageID"]})}
-        />`
-    return makeColumns(renderCheckbox);
-  }, [selectedImages]);
-
-  const rowProps = row => ({
-    onClick: () => toggleImageSelected({imageID: row.values["ImageID"]})
-  });
+  const columns = useMemo(() => COLUMNS, []);
 
   useEffect(() => {
     currentQuery.error && console.error(currentQuery.error);
   }, [currentQuery.error])
   
+  const selectionChanged = useCallback(selectedRows => setSelectedImages(selectedRows.map(row => row.values["ImageID"])),
+    [setSelectedImages]);
+
   return html`
     <${ApolloProvider} client=${client}>
       <div>
@@ -159,8 +129,8 @@ function VirtualSlideApp() {
         <${SlideTable} 
           columns=${columns} 
           data=${currentQuery.data} 
-          loading=${currentQuery.loading} 
-          getRowProps=${rowProps}
+          loading=${currentQuery.loading}
+          selectionChanged=${selectionChanged}
         />
       </div>
     </${ApolloProvider}>

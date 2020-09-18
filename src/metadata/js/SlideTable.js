@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable react/display-name */
 import { html } from 'htm/react';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -7,14 +9,15 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import { useTable } from 'react-table';
+import Checkbox from '@material-ui/core/Checkbox';
+import { useTable, useRowSelect } from 'react-table';
+import { useEffect } from 'react';
 
 function SlideTable({
   columns,
   data,
   loading,
-  getHeaderProps = () => ({}),
-  getRowProps = () => ({})
+  selectionChanged
 })
 {
   const { 
@@ -23,7 +26,31 @@ function SlideTable({
     rows, 
     prepareRow,
     visibleColumns,
-  } = useTable({ columns, data });
+    selectedFlatRows,
+  } = useTable(
+    { columns, data },
+    useRowSelect,
+    hooks => {
+      hooks.visibleColumns.push(columns => [
+        // Let's make a column for selection
+        {
+          id: 'selection',
+          Cell: ({ row }) => html`
+              <${Checkbox} ...${row.getToggleRowSelectedProps()}
+                onClick=${event => event.stopPropagation()} />
+          `,
+        },
+        ...columns,
+      ])
+    });
+
+  const rowProps = row => ({
+    onClick: () => row.toggleRowSelected()
+  });
+
+  useEffect(() => {
+    selectionChanged(selectedFlatRows);
+  }, [selectedFlatRows, selectionChanged]);
 
   return html`
     <${TableContainer} component=${Paper}>
@@ -39,7 +66,7 @@ function SlideTable({
         ${headerGroups.map(headerGroup => (html`
           <${TableRow} ...${headerGroup.getHeaderGroupProps()}>
             ${headerGroup.headers.map(column => (html`
-              <${TableCell} ...${column.getHeaderProps(getHeaderProps(column))}>
+              <${TableCell} ...${column.getHeaderProps()}>
                 ${column.render('Header')}
               </${TableCell}>
             `))}
@@ -50,7 +77,7 @@ function SlideTable({
         ${rows.map((row) => {
           prepareRow(row)
           return html`
-            <${TableRow} ...${row.getRowProps(getRowProps(row))}>
+            <${TableRow} ...${row.getRowProps(rowProps(row))}>
               ${row.cells.map(cell => {
                 return html`
                   <${TableCell} ...${cell.getCellProps()}>
