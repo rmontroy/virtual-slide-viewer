@@ -48,3 +48,21 @@ export const GET_SLIDES_BY_STATUS = gql`
     }
   }
 `;
+
+export const UPDATE_SLIDEID = gql`
+  mutation UpdateSlide($slideid: String!, $imageid: String!) {
+    updateSlide(input: {SlideID: $slideid, ImageID: $imageid}) {
+      ImageID
+      SlideID
+    }
+  }
+`;
+
+export const UPDATE_CASEID = gql`
+  mutation UpdateSlide($caseid: String!, $imageid: String!) {
+    updateSlide(input: {CaseID: $caseid, ImageID: $imageid}) {
+      ImageID
+      CaseID
+    }
+  }
+`;

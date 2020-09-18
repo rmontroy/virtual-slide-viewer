@@ -4,11 +4,11 @@ import AppBar from './AppBar';
 import Tooltip from '@material-ui/core/Tooltip';
 import SlideTable from './SlideTable';
 import { TableFilter, Statuses } from './Filters';
-import { ApolloClient, InMemoryCache, useQuery, useLazyQuery, ApolloProvider } from '@apollo/client';
+import { ApolloClient, InMemoryCache, useQuery, useLazyQuery, useMutation, ApolloProvider } from '@apollo/client';
 import config from './app_config';
-import { GET_SLIDES_BY_STATUS, BATCH_GET_SLIDES } from './graphql/queries';
+import { GET_SLIDES_BY_STATUS, BATCH_GET_SLIDES, UPDATE_SLIDEID, UPDATE_CASEID } from './graphql/queries';
 import '../css/style.css';
-import TextField from '@material-ui/core/TextField';
+import EditableField from './EditableField';
 
 const client = new ApolloClient({
   uri: config.graphqlUri,
@@ -67,21 +67,13 @@ const COLUMNS =
     Header: 'Slide ID',
     accessor: 'SlideID',
     id: 'slideid',
-    Cell: ({ value }) => html`
-      <${TextField}
-        defaultValue=${value}
-        onClick=${event => event.stopPropagation()}
-      />`
+    Cell: EditableField
   },
   {
     Header: 'Case ID',
     accessor: 'CaseID',
     id: 'caseid',
-    Cell: ({ value }) => html`
-      <${TextField}
-        defaultValue=${value}
-        onClick=${event => event.stopPropagation()}
-      />`
+    Cell: EditableField
   },
   { Header: 'Scan Date', accessor: row => html`<div>${row.Date}<br/>${row.Time}</div>` },
   { Header: 'Mag', accessor: 'AppMag', Cell: ({value}) => `${value}X` },
@@ -92,6 +84,8 @@ function VirtualSlideApp() {
   const [casesFilter, setCasesFilter] = useState([]);
   const QueryByStatus = useQuery(GET_SLIDES_BY_STATUS, {client, variables: { statusFilter }});
   const [getCaseData, QueryByCase] = useLazyQuery(BATCH_GET_SLIDES, {client, variables: { imageIds: casesFilter }});
+  const [updateSlideID] = useMutation(UPDATE_SLIDEID, {client});
+  const [updateCaseID] = useMutation(UPDATE_CASEID, {client});
   const [currentQuery, setCurrentQuery] = useState({loading: false, error: null, data: [], refetch: null});
   const [selectedImages, setSelectedImages] = useState([]);
   const byStatus = casesFilter.length == 0;
@@ -116,6 +110,17 @@ function VirtualSlideApp() {
   const selectionChanged = useCallback(selectedRows => setSelectedImages(selectedRows.map(row => row.values["ImageID"])),
     [setSelectedImages]);
 
+  const updateField = (row, columnId, value) => {
+    switch(columnId) {
+      case 'slideid':
+        updateSlideID({ variables: { imageid: row.values["ImageID"], slideid: value } });
+        return;
+      case 'caseid':
+        updateCaseID({ variables: { imageid: row.values["ImageID"], caseid: value } });
+        return;
+    }
+  }
+
   return html`
     <${ApolloProvider} client=${client}>
       <div>
@@ -131,6 +136,7 @@ function VirtualSlideApp() {
           data=${currentQuery.data} 
           loading=${currentQuery.loading}
           selectionChanged=${selectionChanged}
+          updateField=${updateField}
         />
       </div>
     </${ApolloProvider}>

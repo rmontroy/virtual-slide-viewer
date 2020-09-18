@@ -1,5 +1,3 @@
-/* eslint-disable react/prop-types */
-/* eslint-disable react/display-name */
 import { html } from 'htm/react';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -17,7 +15,8 @@ function SlideTable({
   columns,
   data,
   loading,
-  selectionChanged
+  selectionChanged,
+  updateField
 })
 {
   const { 
@@ -28,7 +27,14 @@ function SlideTable({
     visibleColumns,
     selectedFlatRows,
   } = useTable(
-    { columns, data },
+    {
+      columns,
+      data,
+      // updateField() isn't part of the react-table API, but anything we put into these options will
+      // automatically be available on the instance. That way we can call this function from our
+      // cell renderer.
+      updateField
+    },
     useRowSelect,
     hooks => {
       hooks.visibleColumns.push(columns => [
