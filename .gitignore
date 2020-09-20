@@ -4,4 +4,4 @@ web_modules
 node_modules
 logos/
 yarn-error.log*
-*/*/config.js
+**/config.js
