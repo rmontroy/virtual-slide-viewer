@@ -14,8 +14,8 @@ module.exports = {
     "minify": false
   },
   "mount": {
-    'src/metadata': '/',
-    'src/viewer': '/viewer'
+    'src/ImageView': '/viewer',
+    'src/DataView': '/',
   },
   "installOptions": {
     "sourceMap": true
