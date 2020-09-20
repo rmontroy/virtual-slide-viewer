@@ -5,7 +5,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import DataTable from './DataTable';
 import { TableFilter, Statuses } from './Filters';
 import { ApolloClient, InMemoryCache, useQuery, useLazyQuery, useMutation, ApolloProvider } from '@apollo/client';
-import config from './app_config';
+import config from './config';
 import { GET_SLIDES_BY_STATUS, BATCH_GET_SLIDES, UPDATE_SLIDEID, UPDATE_CASEID } from './graphql/queries';
 import '../css/style.css';
 import EditableField from './EditableField';
@@ -25,7 +25,7 @@ const COLUMNS =
     accessor: 'ImageID',
     id: 'label',
     Cell: ({value}) => {
-      const imgSrc = `${config.vsv_bucket}/${value}/label.jpg`
+      const imgSrc = `${config.images_path}/${value}/label.jpg`
       return html`
         <${Tooltip} title=${html`
           <img
@@ -46,7 +46,7 @@ const COLUMNS =
     accessor: 'ImageID',
     id: 'thumbnail',
     Cell: ({value}) => {
-      const imgSrc = `${config.vsv_bucket}/${value}/thumbnail.jpg`
+      const imgSrc = `${config.images_path}/${value}/thumbnail.jpg`
       return html`
         <${Tooltip} title=${html`
           <img
