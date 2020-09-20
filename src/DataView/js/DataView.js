@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { html } from 'htm/react';
 import AppBar from './AppBar';
 import Tooltip from '@material-ui/core/Tooltip';
-import SlideTable from './SlideTable';
+import DataTable from './DataTable';
 import { TableFilter, Statuses } from './Filters';
 import { ApolloClient, InMemoryCache, useQuery, useLazyQuery, useMutation, ApolloProvider } from '@apollo/client';
 import config from './app_config';
@@ -79,7 +79,7 @@ const COLUMNS =
   { Header: 'Mag', accessor: 'AppMag', Cell: ({value}) => `${value}X` },
 ];
 
-function VirtualSlideApp() {
+function DataView() {
   const [statusFilter, setStatusFilter] = useState(Statuses.QC);
   const [casesFilter, setCasesFilter] = useState([]);
   const QueryByStatus = useQuery(GET_SLIDES_BY_STATUS, {client, variables: { statusFilter }});
@@ -131,7 +131,7 @@ function VirtualSlideApp() {
           onFilterClick=${(statusFilter) => setStatusFilter(statusFilter)}
         />
         ${currentQuery.error && html`<p>Error :( ${currentQuery.error.message}</p>`}
-        <${SlideTable} 
+        <${DataTable} 
           columns=${columns} 
           data=${currentQuery.data} 
           loading=${currentQuery.loading}
@@ -143,4 +143,4 @@ function VirtualSlideApp() {
   `
 }
 
-export default VirtualSlideApp;
+export default DataView;
