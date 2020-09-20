@@ -18,7 +18,7 @@ const client = new ApolloClient({
   }
 });
 
-const Viewer = () => {
+const ImageView = () => {
   const [imageIds, setImageIds] = useState([]);
   const [tileSources, setTileSources] = useState([]);
   const [page, setPage] = useState(0);
@@ -161,4 +161,4 @@ const Viewer = () => {
     `}
   `;
 };
-export default Viewer;
+export default ImageView;

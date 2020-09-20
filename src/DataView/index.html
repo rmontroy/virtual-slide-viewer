@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Virtual Slide</title>
+    <title>Virtual Slide Viewer</title>
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
   </head>
@@ -30,12 +30,12 @@
     <script type="module">
       import React from 'react';
       import ReactDOM from 'react-dom';
-      import VirtualSlideApp from './js/VirtualSlideApp';
+      import DataView from './js/DataView';
       import { html } from 'htm/react';
 
       ReactDOM.render(html`
         <${React.StrictMode}>
-          <${VirtualSlideApp} />
+          <${DataView} />
         </${React.StrictMode}>`,
         document.getElementById('root'),
       );

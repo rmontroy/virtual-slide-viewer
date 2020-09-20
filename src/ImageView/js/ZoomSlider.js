@@ -72,10 +72,10 @@ const ZoomSlider = (
     viewport.zoomTo(expandZoom(newValue), viewport.getCenter(), true);
   }
 
-  let marks = useMemo(() => [1,5,10,20].map(x => ({
+  let marks = useMemo(() => zoomBounds.min == 0 ? undefined : [1,5,10,20].map(x => ({
     value: flattenZoom(viewport.imageToViewportZoom(x/appMag)),
     label: x+'X'
-  })), [flattenZoom, viewport, appMag]);
+  })), [zoomBounds.min, flattenZoom, viewport, appMag]);
 
   return html` 
     <${CustomSlider}

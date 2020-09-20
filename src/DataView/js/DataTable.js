@@ -11,7 +11,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import { useTable, useRowSelect } from 'react-table';
 import { useEffect } from 'react';
 
-function SlideTable({
+function DataTable({
   columns,
   data,
   loading,
@@ -100,4 +100,4 @@ function SlideTable({
   `
 }
 
-export default SlideTable;
+export default DataTable;

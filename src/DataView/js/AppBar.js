@@ -34,7 +34,7 @@ export default function AppBar({title, selectedImages, refetch}) {
       <${MuiAppBar} position="fixed">
         <${Toolbar}>
           <${Typography} variant="h6" className=${classes.title}>
-            ${title || 'Virtual Slide'}
+            ${title || 'Virtual Slide Viewer'}
           </${Typography}>
           <div className=${classes.sectionActions}>
             <${Fab} href=${"viewer/index.html?imageIds=" + selectedImages} variant="extended" color="secondary"  size="medium" disabled=${selectedImages.length == 0}>
