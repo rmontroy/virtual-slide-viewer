@@ -15,17 +15,16 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2, 2, 0),
   },
   appBar: {
-    top: 'auto',
-    bottom: 0,
+    alignSelf: 'flex-end',
     backgroundColor: theme.palette.grey[600],
   },
   grow: {
-    flexGrow: 1,
+    flex: 1,
   },
-  statusButtons: {
-    position: 'absolute',
-    left: '50%',
-    transform: 'translate(-50%)',
+  statusButtonGroup: {
+    width: '15%',
+    minWidth: 200,
+    flexWrap: 'wrap',
     backgroundColor: theme.palette.background.default,
   },
   navBeforeButton: {
@@ -44,14 +43,14 @@ export default function AppBar({currentSlide, role, updateStatus}) {
   };
 
   return html`
-    <${MuiAppBar} position="fixed" className=${classes.appBar}>
+    <${MuiAppBar} position="static" className=${classes.appBar}>
       <${Toolbar}>
         <${Tooltip} title="Previous slide">
           <${IconButton} id="prevSlide" edge="start" color="inherit" className=${classes.navBeforeButton} >
             <${NavigateBefore} fontSize="large" />
           </${IconButton}>
         </${Tooltip}>
-        <${Typography} variant="h4" >
+        <${Typography} variant="h5" className=${classes.grow}>
           ${currentSlide.SlideID}
         </${Typography}>
         <${ToggleButtonGroup}
@@ -60,10 +59,15 @@ export default function AppBar({currentSlide, role, updateStatus}) {
           exclusive
           onChange=${handleStatusChange}
           disabled=${role == 'QC'}
-          className=${classes.statusButtons}
+          className=${classes.statusButtonGroup}
         >
           ${Statuses.map(status => html`
-            <${ToggleButton} key=${status} value=${status} children=${status} style=${{width: 60}} />
+            <${ToggleButton}
+              key=${status}
+              value=${status}
+              children=${status}
+              className=${classes.grow}
+            />
           `)}
         </${ToggleButtonGroup}>
         <div className=${classes.grow} />

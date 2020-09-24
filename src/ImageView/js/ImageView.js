@@ -152,7 +152,6 @@ const ImageView = () => {
   let currentSlide = !data ? {} : data.Slides[page];
   
   return html`
-    <div>
       <${AppBar} currentSlide=${currentSlide} updateStatus=${updateSlideStatus} />
       <div id="openseadragon1" className="main" />
       ${!viewer || loading ? html`<p>Loading...</p>` : html`
@@ -163,7 +162,6 @@ const ImageView = () => {
           viewport=${viewer.viewport}
         />
       `}
-    </div>
   `;
 };
 export default ImageView;

@@ -1,6 +1,7 @@
 /* css style */
-html {
-  font-size: 10px;
+#root {
+  height: 100%;
+  display: flex;
 }
 
 html,
