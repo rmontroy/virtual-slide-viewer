@@ -37,7 +37,7 @@ export default function AppBar({title, selectedImages, refetch}) {
             ${title || 'Virtual Slide Viewer'}
           </${Typography}>
           <div className=${classes.sectionActions}>
-            <${Fab} href=${"viewer/index.html?imageIds=" + selectedImages} variant="extended" color="secondary"  size="medium" disabled=${selectedImages.length == 0}>
+            <${Fab} href=${`viewer/index.html?imageIds=${selectedImages}`} variant="extended" color="secondary"  size="medium" disabled=${selectedImages.length == 0}>
               <${VisibilityIcon} style=${{marginRight: 8}} />
               View
             </${Fab}>

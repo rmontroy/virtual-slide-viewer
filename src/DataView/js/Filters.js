@@ -12,7 +12,7 @@ import match from 'autosuggest-highlight/match';
 import Zoom from '@material-ui/core/Zoom';
 import Chip from '@material-ui/core/Chip';
 import { useLazyQuery } from '@apollo/client';
-import { GET_CASEIDS } from './graphql/queries';
+import { GET_CASEIDS, Statuses } from './graphql/queries';
 
 const useStyles = makeStyles((theme) => ({
   filterRoot: {
@@ -140,11 +140,6 @@ export const CaseFilter = forwardRef(({onBlur, selectedCases, onChangeValue}, re
   `;
 });
 
-export const Statuses = Object.freeze({
-  QC: 'QC Inspection',
-  PATH: 'Pathology Review'
-});
-
 export function TableFilter({ statusFilter, setCasesFilter, onFilterClick }) {
   const classes = useStyles();
   const [searching, setSearching] = useState(false);
@@ -168,22 +163,17 @@ export function TableFilter({ statusFilter, setCasesFilter, onFilterClick }) {
     <div className=${classes.filterRoot}>
       <${Zoom} in=${!searching} style=${{ transitionDelay: searching ? '0ms' : '100ms' }} appear=${false}>
         <div className=${classes.filterChips}>
-          <${Chip} 
-            color=${statusFilter === Statuses.QC ? 'primary' : 'default'} 
-            variant=${statusFilter === Statuses.QC ? 'default' : 'outlined'} 
-            label='QC Inspection'
-            icon=${html`<${FilterListIcon} />`}
-            clickable 
-            onClick=${() => onFilterClick(Statuses.QC)}
-          />
-          <${Chip} 
-            color=${statusFilter === Statuses.PATH ? 'primary' : 'default'}
-            variant=${statusFilter === Statuses.PATH ? 'default' : 'outlined'} 
-            label='Pathology Review'
-            icon=${html`<${FilterListIcon} />`}
-            clickable
-            onClick=${() => onFilterClick(Statuses.PATH)}
-          />
+          ${Statuses.map(status => html`
+            <${Chip} 
+              key=${status}
+              color=${statusFilter === status ? 'primary' : 'default'} 
+              variant=${statusFilter === status ? 'default' : 'outlined'} 
+              label=${status}
+              icon=${html`<${FilterListIcon} />`}
+              clickable 
+              onClick=${() => onFilterClick(status)}
+            />
+          `)}
           <${Chip}
             variant='outlined'
             label='Case Search'

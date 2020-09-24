@@ -5,25 +5,53 @@ import OpenSeadragon from 'openseadragon';
 import './plugins/openseadragon-scalebar';
 import './plugins/openseadragon-measurement-tool';
 import '../css/openseadragon-measurement-tool.css'
-import { ApolloClient, InMemoryCache, useQuery } from '@apollo/client';
-import { GET_SLIDES } from './graphql/queries';
-import slideIdStyle from '../css/slideidtag.module.css';
+import { ApolloClient, InMemoryCache, useQuery, useMutation } from '@apollo/client';
+import { GET_SLIDES, UPDATE_SLIDE_STATUS } from './graphql/queries';
 import ZoomSlider from './ZoomSlider';
+import AppBar from './AppBar';
 
 const client = new ApolloClient({
   uri: config.graphqlUri,
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      Slide: {
+        keyFields: ["ImageID"]
+      }
+    }
+  }),
   headers: {
     'x-api-key': config.apiKey
   }
 });
 
+const parseQueryString = () => {
+  let params = {};
+  let search = window.location.search.slice(1);
+  if (search) {
+    let parts = search.split("&");
+
+    parts.forEach(function (part) {
+      let subparts = part.split("=");
+      let key = subparts[0];
+      let value = subparts[1];
+      params[key] = value;
+    });
+  }
+  return params;
+}
+
+const getImageIds = () => {
+  let params = parseQueryString();
+  return params["imageIds"] ? params["imageIds"].split(",") : [];  
+}
+
 const ImageView = () => {
-  const [imageIds, setImageIds] = useState([]);
+  const [imageIds] = useState(getImageIds());
   const [tileSources, setTileSources] = useState([]);
   const [page, setPage] = useState(0);
   const prevPageRef = useRef();
   const {loading, data} = useQuery(GET_SLIDES, { variables: { ids: imageIds}, client});
+  const [updateSlideStatus] = useMutation(UPDATE_SLIDE_STATUS, {client});
   const [viewer, setViewer] = useState();
   const [zoom, setZoom] = useState(0);
   const savedViewsRef = useRef([]);
@@ -52,31 +80,6 @@ const ImageView = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [setViewer])
 
-  const parseQueryString = useCallback(() => {
-    let params = {};
-    let search = window.location.search.slice(1);
-    if (search) {
-      let parts = search.split("&");
-  
-      parts.forEach(function (part) {
-        let subparts = part.split("=");
-        let key = subparts[0];
-        let value = subparts[1];
-        params[key] = value;
-      });
-    }
-    return params;
-  }, []);
-  
-  const getImageIds = useCallback(() => {
-    let params = parseQueryString();
-    return params["imageIds"] ? params["imageIds"].split(",") : [];  
-  }, [parseQueryString]);
-    
-  useEffect(() => {
-    setImageIds(getImageIds());
-  }, [getImageIds])
-
   useEffect(() => {
     setTileSources(imageIds.map(imageId => config.imageUrlTemplate(imageId)));
     savedViewsRef.current = imageIds.map(() => 0);
@@ -89,7 +92,7 @@ const ImageView = () => {
   }, [tileSources, viewer]);
   
   useEffect(() => {
-    if (loading) return;
+    if (!data) return;
 
     let mpp = data.Slides[page].MPP;
     viewer.scalebar({
@@ -112,19 +115,19 @@ const ImageView = () => {
       //ajaxWithCredentials: true,
       //crossOriginPolicy: "Anonymous",
       //defaultZoomLevel: 0,
-      id: "openseadragon1",
+      id: 'openseadragon1',
       //loadTilesWithAjax: true,
-      navigatorPosition: "BOTTOM_RIGHT",
+      navigatorPosition: 'BOTTOM_RIGHT',
       navigatorAutoFade: false,
       showNavigator: true,
       showNavigationControl: false,
-      //toolbar: "toolbarDiv",
       tileSources: [],
       maxZoomPixelRatio: 1,
       visibilityRatio: 0.5,
       sequenceMode: true,
-      showReferenceStrip: true,
-      showSequenceControl: false
+      showSequenceControl: true,
+      previousButton: 'prevSlide',
+      nextButton: 'nextSlide'
     });
     
     try {
@@ -146,19 +149,21 @@ const ImageView = () => {
     return osd;
   }, []);
 
-  let currentSlide = loading ? {} : data.Slides[page];
-    
+  let currentSlide = !data ? {} : data.Slides[page];
+  
   return html`
-    <div id="openseadragon1" className="main" />
-    ${!viewer || loading ? html`<p>Loading...</p>` : html`
-      <div className=${slideIdStyle.tag}>${currentSlide.SlideID}</div>
-      <${ZoomSlider} 
-        appMag=${Number(currentSlide.AppMag)}
-        zoom=${zoom}
-        zoomBounds=${zoomBounds}
-        viewport=${viewer.viewport}
-      />
-    `}
+    <div>
+      <${AppBar} currentSlide=${currentSlide} updateStatus=${updateSlideStatus} />
+      <div id="openseadragon1" className="main" />
+      ${!viewer || loading ? html`<p>Loading...</p>` : html`
+        <${ZoomSlider} 
+          appMag=${Number(currentSlide.AppMag)}
+          zoom=${zoom}
+          zoomBounds=${zoomBounds}
+          viewport=${viewer.viewport}
+        />
+      `}
+    </div>
   `;
 };
 export default ImageView;

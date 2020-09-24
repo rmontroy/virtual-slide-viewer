@@ -3,10 +3,10 @@ import { html } from 'htm/react';
 import AppBar from './AppBar';
 import Tooltip from '@material-ui/core/Tooltip';
 import DataTable from './DataTable';
-import { TableFilter, Statuses } from './Filters';
+import { TableFilter } from './Filters';
 import { ApolloClient, InMemoryCache, useQuery, useLazyQuery, useMutation, ApolloProvider } from '@apollo/client';
 import config from './config';
-import { GET_SLIDES_BY_STATUS, BATCH_GET_SLIDES, UPDATE_SLIDEID, UPDATE_CASEID } from './graphql/queries';
+import { GET_SLIDES_BY_STATUS, BATCH_GET_SLIDES, UPDATE_SLIDEID, UPDATE_CASEID, Statuses } from './graphql/queries';
 import '../css/style.css';
 import EditableField from './EditableField';
 
@@ -75,12 +75,15 @@ const COLUMNS =
     id: 'caseid',
     Cell: EditableField
   },
-  { Header: 'Scan Date', accessor: row => html`<div>${row.Date}<br/>${row.Time}</div>` },
+  { Header: 'Scan Date', accessor: row => {
+      if (row.ScanDate) return html`<div>${row.ScanDate.substring(0,10)}<br/>${row.ScanDate.substring(11,19)}</div>`;
+    }
+  },
   { Header: 'Mag', accessor: 'AppMag', Cell: ({value}) => `${value}X` },
 ];
 
 function DataView() {
-  const [statusFilter, setStatusFilter] = useState(Statuses.QC);
+  const [statusFilter, setStatusFilter] = useState(Statuses[0]);
   const [casesFilter, setCasesFilter] = useState([]);
   const QueryByStatus = useQuery(GET_SLIDES_BY_STATUS, {client, variables: { statusFilter }});
   const [getCaseData, QueryByCase] = useLazyQuery(BATCH_GET_SLIDES, {client, variables: { imageIds: casesFilter }});
@@ -124,7 +127,7 @@ function DataView() {
   return html`
     <${ApolloProvider} client=${client}>
       <div>
-        <${AppBar} title=${config.appTitle} selectedImages=${selectedImages} refetch=${currentQuery.refetch} />
+        <${AppBar} title=${config.appTitle} selectedImages=${selectedImages} statusFilter=${statusFilter} refetch=${currentQuery.refetch} />
         <${TableFilter}
           statusFilter=${statusFilter}
           setCasesFilter=${setCasesFilter}

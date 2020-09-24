@@ -1,0 +1,78 @@
+import { html } from 'htm/react';
+import { makeStyles } from '@material-ui/core/styles';
+import MuiAppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import IconButton from '@material-ui/core/IconButton';
+import { NavigateBefore, NavigateNext } from '@material-ui/icons';
+import Typography from '@material-ui/core/Typography';
+import { Statuses } from './graphql/queries';
+import ToggleButton from '@material-ui/lab/ToggleButton';
+import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
+import Tooltip from '@material-ui/core/Tooltip';
+
+const useStyles = makeStyles((theme) => ({
+  text: {
+    padding: theme.spacing(2, 2, 0),
+  },
+  appBar: {
+    top: 'auto',
+    bottom: 0,
+    backgroundColor: theme.palette.grey[600],
+  },
+  grow: {
+    flexGrow: 1,
+  },
+  statusButtons: {
+    position: 'absolute',
+    left: '50%',
+    transform: 'translate(-50%)',
+    backgroundColor: theme.palette.background.default,
+  },
+  navBeforeButton: {
+    marginRight: theme.spacing(4),
+  },
+  navNextButton: {
+    marginLeft: theme.spacing(4),
+  },
+}));
+
+export default function AppBar({currentSlide, role, updateStatus}) {
+  const classes = useStyles();
+  
+  const handleStatusChange = (event, newStatus) => {
+    updateStatus({ variables: { imageid: currentSlide.ImageID, status: newStatus } });
+  };
+
+  return html`
+    <${MuiAppBar} position="fixed" className=${classes.appBar}>
+      <${Toolbar}>
+        <${Tooltip} title="Previous slide">
+          <${IconButton} id="prevSlide" edge="start" color="inherit" className=${classes.navBeforeButton} >
+            <${NavigateBefore} fontSize="large" />
+          </${IconButton}>
+        </${Tooltip}>
+        <${Typography} variant="h4" >
+          ${currentSlide.SlideID}
+        </${Typography}>
+        <${ToggleButtonGroup}
+          size="large"
+          value=${currentSlide.Status}
+          exclusive
+          onChange=${handleStatusChange}
+          disabled=${role == 'QC'}
+          className=${classes.statusButtons}
+        >
+          ${Statuses.map(status => html`
+            <${ToggleButton} key=${status} value=${status} children=${status} style=${{width: 60}} />
+          `)}
+        </${ToggleButtonGroup}>
+        <div className=${classes.grow} />
+        <${Tooltip} title="Next slide">
+          <${IconButton} id='nextSlide' edge="end" color="inherit" className=${classes.navNextButton} >
+            <${NavigateNext} fontSize="large" />
+          </${IconButton}>
+        </${Tooltip}>
+      </${Toolbar}>
+    </${MuiAppBar}>
+  `;
+}

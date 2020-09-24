@@ -4,10 +4,9 @@ export const BATCH_GET_SLIDES = gql`
   query batchGetSlides($imageIds: [String!]) {
     Slides:batchGetSlides(ImageIDs: $imageIds) {
       CaseID
-      Date
       ImageID
       SlideID
-      Time
+      ScanDate
       AppMag
       MPP
     }
@@ -37,10 +36,9 @@ export const GET_SLIDES_BY_STATUS = gql`
     Slides:querySlidesByStatus(Status: $statusFilter, limit: $limit, nextToken: $nextToken) {
       items {
         CaseID
-        Date
         ImageID
         SlideID
-        Time
+        ScanDate
         AppMag
         MPP
       }
@@ -66,3 +64,5 @@ export const UPDATE_CASEID = gql`
     }
   }
 `;
+
+export const Statuses = ['NEW', 'GOOD', 'BAD'];
