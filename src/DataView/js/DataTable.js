@@ -41,6 +41,10 @@ function DataTable({
         // Let's make a column for selection
         {
           id: 'selection',
+          Header: ({ getToggleAllRowsSelectedProps }) => html`
+              <${Checkbox} ...${getToggleAllRowsSelectedProps()}
+                onClick=${event => event.stopPropagation()} />
+          `,
           Cell: ({ row }) => html`
               <${Checkbox} ...${row.getToggleRowSelectedProps()}
                 onClick=${event => event.stopPropagation()} />
