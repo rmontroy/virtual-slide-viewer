@@ -18,7 +18,9 @@ const EditableField = ({
   
     // We'll only update the external data when the input is blurred
     const onBlur = () => {
-      updateField(row, id, value)
+      if (value != initialValue) {
+        updateField(row, id, value)
+      }
     }
   
     // If the initialValue is changed external, sync it up with our state

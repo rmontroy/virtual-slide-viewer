@@ -12,7 +12,13 @@ import EditableField from './EditableField';
 
 const client = new ApolloClient({
   uri: config.graphqlUri,
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      Slide: {
+        keyFields: ["ImageID"]
+      }
+    }
+  }),
   headers: {
     'x-api-key': config.apiKey
   }
