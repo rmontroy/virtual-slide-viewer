@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { html } from 'htm/react';
 import AppBar from './AppBar';
 import Tooltip from '@material-ui/core/Tooltip';
+import Snackbar from '@material-ui/core/Snackbar';
 import DataTable from './DataTable';
 import { TableFilter } from './Filters';
 import { ApolloClient, InMemoryCache, useQuery, useLazyQuery, useMutation, ApolloProvider } from '@apollo/client';
@@ -98,6 +99,7 @@ function DataView() {
   const [currentQuery, setCurrentQuery] = useState({loading: false, error: null, data: [], refetch: null});
   const [selectedImages, setSelectedImages] = useState([]);
   const byStatus = casesFilter.length == 0;
+  const [editMessage, setEditMessage] = useState(null);
 
   useEffect(() => {
     let currentQuery = byStatus ? {...QueryByStatus} : {...QueryByCase};
@@ -120,15 +122,26 @@ function DataView() {
     [setSelectedImages]);
 
   const updateField = (row, columnId, value) => {
+    let fieldName, imageId = row.values["ImageID"];
     switch(columnId) {
       case 'slideid':
         updateSlideID({ variables: { imageid: row.values["ImageID"], slideid: value } });
-        return;
+        fieldName = "Slide ID";
+        break;
       case 'caseid':
         updateCaseID({ variables: { imageid: row.values["ImageID"], caseid: value } });
-        return;
+        fieldName = "Case ID";
+        break;
     }
+    setEditMessage(`${fieldName} for image ${imageId} set to "${value}".`);
   }
+
+  const closeEditFeedback = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setEditMessage(null);
+  };
 
   return html`
     <${ApolloProvider} client=${client}>
@@ -146,6 +159,16 @@ function DataView() {
           loading=${currentQuery.loading}
           selectionChanged=${selectionChanged}
           updateField=${updateField}
+        />
+        <${Snackbar}
+          anchorOrigin=${{
+            vertical: 'bottom',
+            horizontal: 'center',
+          }}
+          open=${Boolean(editMessage)}
+          autoHideDuration=${3000}
+          onClose=${closeEditFeedback}
+          message=${editMessage}
         />
       </div>
     </${ApolloProvider}>
