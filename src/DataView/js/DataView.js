@@ -7,7 +7,7 @@ import DataTable from './DataTable';
 import { TableFilter } from './Filters';
 import { ApolloClient, InMemoryCache, useQuery, useLazyQuery, useMutation, ApolloProvider } from '@apollo/client';
 import config from './config';
-import { GET_SLIDES_BY_STATUS, BATCH_GET_SLIDES, UPDATE_SLIDEID, UPDATE_CASEID, Statuses } from './graphql/queries';
+import { GET_SLIDES_BY_STATUS, GET_SLIDES, UPDATE_SLIDEID, UPDATE_CASEID, DELETE_SLIDES, Statuses } from './graphql/queries';
 import '../css/style.css';
 import EditableField from './EditableField';
 
@@ -93,9 +93,18 @@ function DataView() {
   const [statusFilter, setStatusFilter] = useState(Statuses[0]);
   const [casesFilter, setCasesFilter] = useState([]);
   const QueryByStatus = useQuery(GET_SLIDES_BY_STATUS, {client, variables: { statusFilter }});
-  const [getCaseData, QueryByCase] = useLazyQuery(BATCH_GET_SLIDES, {client, variables: { imageIds: casesFilter }});
+  const [getCaseData, QueryByCase] = useLazyQuery(GET_SLIDES, {client, variables: { imageIds: casesFilter }});
   const [updateSlideID] = useMutation(UPDATE_SLIDEID, {client});
   const [updateCaseID] = useMutation(UPDATE_CASEID, {client});
+  const [deleteSlides] = useMutation(DELETE_SLIDES, {
+    client,
+    update(cache, { data: { deleteSlides } }) {
+      deleteSlides.forEach(slide => {
+        let key = `Slide:{"ImageID":"${slide.ImageID}"}`;
+        cache.data.delete(key)
+      })
+    }
+  });
   const [currentQuery, setCurrentQuery] = useState({loading: false, error: null, data: [], refetch: null});
   const [selectedImages, setSelectedImages] = useState([]);
   const byStatus = casesFilter.length == 0;
@@ -146,7 +155,13 @@ function DataView() {
   return html`
     <${ApolloProvider} client=${client}>
       <div>
-        <${AppBar} title=${config.appTitle} selectedImages=${selectedImages} statusFilter=${statusFilter} refetch=${currentQuery.refetch} />
+        <${AppBar}
+          title=${config.appTitle}
+          selectedImages=${selectedImages}
+          statusFilter=${statusFilter}
+          refetch=${currentQuery.refetch}
+          deleteSlides=${deleteSlides}
+        />
         <${TableFilter}
           statusFilter=${statusFilter}
           setCasesFilter=${setCasesFilter}

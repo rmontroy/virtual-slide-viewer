@@ -1,61 +1,104 @@
+import { useState } from 'react';
 import { html } from 'htm/react';
 import { makeStyles } from '@material-ui/core/styles';
 import MuiAppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Fab from '@material-ui/core/Fab';
-import VisibilityIcon from '@material-ui/icons/Visibility';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
-import RefreshIcon from '@material-ui/icons/Refresh';
+import { Visibility, Refresh,  MoreVert, Delete } from '@material-ui/icons';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-  },
-  menuButton: {
+  viewButton: {
     marginRight: theme.spacing(2),
   },
   title: {
     flexGrow: 1,
   },
-  sectionActions: {
-    '& > *': {
-      marginRight: theme.spacing(2),
-    },
-  },
   offset: theme.mixins.toolbar,
 }));
 
-export default function AppBar({title, selectedImages, refetch}) {
+export default function AppBar({title, selectedImages, refetch, deleteSlides}) {
   const classes = useStyles();
+  const [anchorEl, setAnchorEl] = useState(null);
+  
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
   return html`
-    <div className=${classes.root}>
       <${MuiAppBar} position="fixed">
         <${Toolbar}>
           <${Typography} variant="h6" className=${classes.title}>
             ${title || 'Virtual Slide Viewer'}
           </${Typography}>
-          <div className=${classes.sectionActions}>
-            <${Fab} href=${`viewer/index.html?imageIds=${selectedImages}`} variant="extended" color="secondary"  size="medium" disabled=${selectedImages.length == 0}>
-              <${VisibilityIcon} style=${{marginRight: 8}} />
+            <${Fab}
+              href=${`viewer/index.html?imageIds=${selectedImages}`}
+              variant="extended"
+              color="secondary"
+              size="medium"
+              disabled=${selectedImages.length == 0}
+              className=${classes.viewButton}
+            >
+              <${Visibility} style=${{marginRight: 8}} />
               View
             </${Fab}>
             <${Tooltip} title="Refetch">
               <${IconButton}
-                  edge="start"
-                  className=${classes.menuButton}
                   color="inherit"
-                  onClick=${() => refetch()}
+                  onClick=${refetch}
                   aria-label="menu"
               >
-                <${RefreshIcon} />
+                <${Refresh} />
               </${IconButton}>
             </${Tooltip}>
-          </div>
+            <${Tooltip} title="More">
+              <${IconButton}
+                  edge="end"
+                  color="inherit"
+                  onClick=${handleMenu}
+                  aria-label="menu"
+              >
+                <${MoreVert} />
+              </${IconButton}>
+            </${Tooltip}>
+            <${Menu}
+              open=${Boolean(anchorEl)}
+              id="menu-appbar"
+              anchorEl=${anchorEl}
+              anchorOrigin=${{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              keepMounted
+              transformOrigin=${{
+                vertical: 'top',
+                horizontal: 'right',
+              }}
+              onClose=${() => {
+                setAnchorEl(null);
+              }}
+            >
+              <${MenuItem}
+                onClick=${() => {
+                  deleteSlides({ variables: { imageIds: selectedImages } });
+                  setAnchorEl(null);
+                }}
+                disabled=${selectedImages.length == 0}
+              >
+                <${ListItemIcon}>
+                  <${Delete} fontSize="small" />
+                </${ListItemIcon}>
+                <${ListItemText} primary="Delete slides" />
+              </${MenuItem}>
+            </${Menu}>
         </${Toolbar}|>
       </${MuiAppBar}>
       <div className=${classes.offset} />
-    </div>
   `;
 }

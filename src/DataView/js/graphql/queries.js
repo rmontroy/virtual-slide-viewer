@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
-export const BATCH_GET_SLIDES = gql`
-  query batchGetSlides($imageIds: [String!]) {
-    Slides:batchGetSlides(ImageIDs: $imageIds) {
+export const GET_SLIDES = gql`
+  query getSlides($imageIds: [String!]) {
+    Slides:getSlides(ImageIDs: $imageIds) {
       CaseID
       ImageID
       SlideID
@@ -61,6 +61,14 @@ export const UPDATE_CASEID = gql`
     updateSlide(input: {CaseID: $caseid, ImageID: $imageid}) {
       ImageID
       CaseID
+    }
+  }
+`;
+
+export const DELETE_SLIDES = gql`
+  mutation DeleteSlides($imageIds: [String!]) {
+    deleteSlides(ImageIDs: $imageIds) {
+      ImageID
     }
   }
 `;
