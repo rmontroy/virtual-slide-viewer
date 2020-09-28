@@ -97,7 +97,7 @@ function DataView() {
   const [statusFilter, setStatusFilter] = useState(Statuses[0]);
   const [casesFilter, setCasesFilter] = useState([]);
   const QueryByStatus = useQuery(GET_SLIDES_BY_STATUS, {client, variables: { statusFilter }});
-  const [getCaseData, QueryByCase] = useLazyQuery(GET_SLIDES, {client, variables: { imageIds: casesFilter }});
+  const [getCaseData, QueryByCase] = useLazyQuery(GET_SLIDES, {client, variables: { ImageIDs: casesFilter }});
   const [updateSlideID] = useMutation(UPDATE_SLIDEID, {client});
   const [updateCaseID] = useMutation(UPDATE_CASEID, {client});
   const [deleteSlides] = useMutation(DELETE_SLIDES, {

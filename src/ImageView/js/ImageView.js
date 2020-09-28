@@ -50,7 +50,7 @@ const ImageView = () => {
   const [tileSources, setTileSources] = useState([]);
   const [page, setPage] = useState(0);
   const prevPageRef = useRef();
-  const {loading, data} = useQuery(GET_SLIDES, { variables: { ids: imageIds}, client});
+  const {loading, data} = useQuery(GET_SLIDES, { variables: { ImageIDs: imageIds}, client});
   const [updateSlideStatus] = useMutation(UPDATE_SLIDE_STATUS, {client});
   const [viewer, setViewer] = useState();
   const [zoom, setZoom] = useState(0);

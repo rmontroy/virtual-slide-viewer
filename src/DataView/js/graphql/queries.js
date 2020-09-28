@@ -1,14 +1,15 @@
 import { gql } from "@apollo/client";
 
 export const GET_SLIDES = gql`
-  query getSlides($imageIds: [String!]) {
-    Slides:getSlides(ImageIDs: $imageIds) {
+  query getSlides($ImageIDs: [String!]) {
+    Slides:getSlides(ImageIDs: $imageIDs) {
       CaseID
-      ImageID
       SlideID
+      ImageID
       ScanDate
       AppMag
       MPP
+      Status
     }
   }
 `;

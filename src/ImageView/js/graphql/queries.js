@@ -1,10 +1,12 @@
 import { gql } from "@apollo/client";
 
 export const GET_SLIDES = gql`
-  query batchGetSlides($ids: [String!]) {
-    Slides:batchGetSlides(ImageIDs: $ids) {
+  query getSlides($ImageIDs: [String!]) {
+    Slides:getSlides(ImageIDs: $ImageIDs) {
+      CaseID
       SlideID
       ImageID
+      ScanDate
       AppMag
       MPP
       Status
