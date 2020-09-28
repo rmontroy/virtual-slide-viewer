@@ -86,7 +86,7 @@ export default function AppBar({title, selectedImages, refetch, deleteSlides}) {
             >
               <${MenuItem}
                 onClick=${() => {
-                  deleteSlides({ variables: { imageIds: selectedImages } });
+                  deleteSlides({ variables: { ImageIDs: selectedImages } });
                   setAnchorEl(null);
                 }}
                 disabled=${selectedImages.length == 0}

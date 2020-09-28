@@ -48,8 +48,8 @@ export const GET_SLIDES_BY_STATUS = gql`
 `;
 
 export const UPDATE_SLIDEID = gql`
-  mutation UpdateSlide($slideid: String!, $imageid: String!) {
-    updateSlide(input: {SlideID: $slideid, ImageID: $imageid}) {
+  mutation UpdateSlide($SlideID: String!, $ImageID: String!) {
+    updateSlide(input: {SlideID: $SlideID, ImageID: $ImageID}) {
       ImageID
       SlideID
     }
@@ -57,8 +57,8 @@ export const UPDATE_SLIDEID = gql`
 `;
 
 export const UPDATE_CASEID = gql`
-  mutation UpdateSlide($caseid: String!, $imageid: String!) {
-    updateSlide(input: {CaseID: $caseid, ImageID: $imageid}) {
+  mutation UpdateSlide($CaseID: String!, $ImageID: String!) {
+    updateSlide(input: {CaseID: $CaseID, ImageID: $ImageID}) {
       ImageID
       CaseID
     }
@@ -66,8 +66,8 @@ export const UPDATE_CASEID = gql`
 `;
 
 export const DELETE_SLIDES = gql`
-  mutation DeleteSlides($imageIds: [String!]) {
-    deleteSlides(ImageIDs: $imageIds) {
+  mutation DeleteSlides($ImageIDs: [String!]) {
+    deleteSlides(ImageIDs: $ImageIDs) {
       ImageID
     }
   }

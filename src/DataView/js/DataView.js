@@ -73,20 +73,24 @@ const COLUMNS =
   {
     Header: 'Slide ID',
     accessor: 'SlideID',
-    id: 'slideid',
     Cell: EditableField
   },
   {
     Header: 'Case ID',
     accessor: 'CaseID',
-    id: 'caseid',
     Cell: EditableField
   },
-  { Header: 'Scan Date', accessor: row => {
+  {
+    Header: 'Scan Date',
+    accessor: row => {
       if (row.ScanDate) return html`<div>${row.ScanDate.substring(0,10)}<br/>${row.ScanDate.substring(11,19)}</div>`;
     }
   },
-  { Header: 'Mag', accessor: 'AppMag', Cell: ({value}) => `${value}X` },
+  {
+    Header: 'Mag',
+    accessor: 'AppMag',
+    Cell: ({value}) => `${value}X`
+  },
 ];
 
 function DataView() {
@@ -133,12 +137,12 @@ function DataView() {
   const updateField = (row, columnId, value) => {
     let fieldName, imageId = row.values["ImageID"];
     switch(columnId) {
-      case 'slideid':
-        updateSlideID({ variables: { imageid: row.values["ImageID"], slideid: value } });
+      case 'SlideID':
+        updateSlideID({ variables: { ImageID: imageId, SlideID: value } });
         fieldName = "Slide ID";
         break;
-      case 'caseid':
-        updateCaseID({ variables: { imageid: row.values["ImageID"], caseid: value } });
+      case 'CaseID':
+        updateCaseID({ variables: { ImageID: imageId, CaseID: value } });
         fieldName = "Case ID";
         break;
     }
@@ -158,7 +162,6 @@ function DataView() {
         <${AppBar}
           title=${config.appTitle}
           selectedImages=${selectedImages}
-          statusFilter=${statusFilter}
           refetch=${currentQuery.refetch}
           deleteSlides=${deleteSlides}
         />
@@ -168,9 +171,9 @@ function DataView() {
           onFilterClick=${(statusFilter) => setStatusFilter(statusFilter)}
         />
         ${currentQuery.error && html`<p>Error :( ${currentQuery.error.message}</p>`}
-        <${DataTable} 
-          columns=${columns} 
-          data=${currentQuery.data} 
+        <${DataTable}
+          columns=${columns}
+          data=${currentQuery.data}
           loading=${currentQuery.loading}
           selectionChanged=${selectionChanged}
           updateField=${updateField}
