@@ -51,7 +51,7 @@ export default function AppBar({title, selectedImages, refetch, deleteSlides}) {
             <${Tooltip} title="Refetch">
               <${IconButton}
                   color="inherit"
-                  onClick=${refetch}
+                  onClick=${() => refetch()}
                   aria-label="menu"
               >
                 <${Refresh} />
