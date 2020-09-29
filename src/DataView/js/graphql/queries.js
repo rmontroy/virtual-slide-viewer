@@ -2,7 +2,7 @@ import { gql } from "@apollo/client";
 
 export const GET_SLIDES = gql`
   query getSlides($ImageIDs: [String!]) {
-    Slides:getSlides(ImageIDs: $imageIDs) {
+    Slides:getSlides(ImageIDs: $ImageIDs) {
       CaseID
       SlideID
       ImageID
