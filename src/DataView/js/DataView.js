@@ -32,7 +32,7 @@ const COLUMNS =
     accessor: 'ImageID',
     id: 'label',
     Cell: ({value}) => {
-      const imgSrc = `${config.images_path}/${value}/label.jpg`
+      const imgSrc = `${config.imageUrlTemplate(value)}/label.jpeg`
       return html`
         <${Tooltip} title=${html`
           <img
@@ -53,7 +53,7 @@ const COLUMNS =
     accessor: 'ImageID',
     id: 'thumbnail',
     Cell: ({value}) => {
-      const imgSrc = `${config.images_path}/${value}/thumbnail.jpg`
+      const imgSrc = `${config.imageUrlTemplate(value)}/thumbnail.jpeg`
       return html`
         <${Tooltip} title=${html`
           <img

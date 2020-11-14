@@ -1,6 +1,6 @@
 export default {
     "graphqlUri": "{{graphql uri}}",
     "apiKey": "{{api key}}",
-    "images_path": "https://{{hostname}}/images",
+    "imageUrlTemplate": (imageId) => `https://{{hostname}}/images/DeepZoom/${imageId}.dzi`,
     "appTitle": "Virtual Slide Viewer"
 };
