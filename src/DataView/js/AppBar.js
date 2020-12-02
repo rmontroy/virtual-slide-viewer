@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
   offset: theme.mixins.toolbar,
 }));
 
-export default function AppBar({title, selectedImages, refetch, deleteSlides}) {
+export default function AppBar({title, selectedImages, refetch, deleteSlide}) {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
   
@@ -86,7 +86,7 @@ export default function AppBar({title, selectedImages, refetch, deleteSlides}) {
             >
               <${MenuItem}
                 onClick=${() => {
-                  deleteSlides({ variables: { ImageIDs: selectedImages } });
+                  selectedImages.forEach(imageID => deleteSlide({ variables: { ImageID: imageID } }));
                   setAnchorEl(null);
                 }}
                 disabled=${selectedImages.length == 0}

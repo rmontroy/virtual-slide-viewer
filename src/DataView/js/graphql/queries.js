@@ -66,10 +66,11 @@ export const UPDATE_CASEID = gql`
   }
 `;
 
-export const DELETE_SLIDES = gql`
-  mutation DeleteSlides($ImageIDs: [String!]) {
-    deleteSlides(ImageIDs: $ImageIDs) {
+export const DELETE_SLIDE = gql`
+  mutation UpdateSlide($ImageID: String!) {
+    updateSlide(input: {Status: "DELETED", ImageID: $ImageID}) {
       ImageID
+      Status
     }
   }
 `;

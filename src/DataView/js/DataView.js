@@ -7,7 +7,7 @@ import DataTable from './DataTable';
 import { TableFilter } from './Filters';
 import { ApolloClient, InMemoryCache, useQuery, useLazyQuery, useMutation, ApolloProvider } from '@apollo/client';
 import config from './config';
-import { GET_SLIDES_BY_STATUS, GET_SLIDES, UPDATE_SLIDEID, UPDATE_CASEID, DELETE_SLIDES, Statuses } from './graphql/queries';
+import { GET_SLIDES_BY_STATUS, GET_SLIDES, UPDATE_SLIDEID, UPDATE_CASEID, DELETE_SLIDE, Statuses } from './graphql/queries';
 import '../css/style.css';
 import EditableField from './EditableField';
 
@@ -100,13 +100,11 @@ function DataView() {
   const [getCaseData, QueryByCase] = useLazyQuery(GET_SLIDES, {client, variables: { ImageIDs: casesFilter }});
   const [updateSlideID] = useMutation(UPDATE_SLIDEID, {client});
   const [updateCaseID] = useMutation(UPDATE_CASEID, {client});
-  const [deleteSlides] = useMutation(DELETE_SLIDES, {
+  const [deleteSlide] = useMutation(DELETE_SLIDE, {
     client,
-    update(cache, { data: { deleteSlides } }) {
-      deleteSlides.forEach(slide => {
-        let key = `Slide:{"ImageID":"${slide.ImageID}"}`;
-        cache.data.delete(key)
-      })
+    update(cache, { data: { updateSlide } }) {
+      let key = `Slide:{"ImageID":"${updateSlide.ImageID}"}`;
+      cache.evict(key)
     }
   });
   const [currentQuery, setCurrentQuery] = useState({loading: false, error: null, data: [], refetch: null});
@@ -163,7 +161,7 @@ function DataView() {
           title=${config.appTitle}
           selectedImages=${selectedImages}
           refetch=${currentQuery.refetch}
-          deleteSlides=${deleteSlides}
+          deleteSlide=${deleteSlide}
         />
         <${TableFilter}
           statusFilter=${statusFilter}
