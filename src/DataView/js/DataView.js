@@ -100,7 +100,7 @@ function DataView() {
   const [getCaseData, QueryByCase] = useLazyQuery(GET_SLIDES, {client, variables: { ImageIDs: casesFilter }});
   const [updateSlideID] = useMutation(UPDATE_SLIDEID, {client});
   const [updateCaseID] = useMutation(UPDATE_CASEID, {client});
-  const [deleteSlide] = useMutation(DELETE_SLIDE, {
+  const [deleteSlideMetadata] = useMutation(DELETE_SLIDE, {
     client,
     update(cache, { data: { updateSlide } }) {
       let key = `Slide:{"ImageID":"${updateSlide.ImageID}"}`;
@@ -110,7 +110,7 @@ function DataView() {
   const [currentQuery, setCurrentQuery] = useState({loading: false, error: null, data: [], refetch: null});
   const [selectedImages, setSelectedImages] = useState([]);
   const byStatus = casesFilter.length == 0;
-  const [editMessage, setEditMessage] = useState(null);
+  const [toastMessage, setToastMessage] = useState(null);
 
   useEffect(() => {
     let currentQuery = byStatus ? {...QueryByStatus} : {...QueryByCase};
@@ -144,15 +144,29 @@ function DataView() {
         fieldName = "Case ID";
         break;
     }
-    setEditMessage(`${fieldName} for image ${imageId} set to "${value}".`);
+    setToastMessage(`${fieldName} for image ${imageId} set to "${value}".`);
   }
 
   const closeEditFeedback = (event, reason) => {
     if (reason === 'clickaway') {
       return;
     }
-    setEditMessage(null);
+    setToastMessage(null);
   };
+
+  const deleteSlide = (imageId) => {
+    fetch(`/slide/${imageId}`, {
+      method: 'DELETE',
+      mode: 'cors',
+      cache: 'no-cache',
+      credentials: 'include',
+      redirect: 'error',
+      referrerPolicy: 'same-origin',
+    }).then(response => {
+      deleteSlideMetadata({ variables: { ImageID: imageId } });
+      setToastMessage(response.ok ? `Slide ${imageId} deleted.` : response.text);
+    });
+  }
 
   return html`
     <${ApolloProvider} client=${client}>
@@ -181,10 +195,10 @@ function DataView() {
             vertical: 'bottom',
             horizontal: 'center',
           }}
-          open=${Boolean(editMessage)}
+          open=${Boolean(toastMessage)}
           autoHideDuration=${3000}
           onClose=${closeEditFeedback}
-          message=${editMessage}
+          message=${toastMessage}
         />
       </div>
     </${ApolloProvider}>
