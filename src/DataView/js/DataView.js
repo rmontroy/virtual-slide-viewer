@@ -20,10 +20,11 @@ const client = new ApolloClient({
       },
       Query: {
         fields: {
-          feed: {
+          querySlidesByStatus: {
             keyArgs: ["Status"],
-            merge(existing = [], incoming) {
-              return [...existing, ...incoming];
+            merge(existing = { }, incoming) {
+              let mergedItems = [...existing.items || [], ...incoming.items];
+              return {...incoming, items: mergedItems};
             },
           }
         }
@@ -106,7 +107,7 @@ const COLUMNS =
 function DataView() {
   const [statusFilter, setStatusFilter] = useState(Statuses[0]);
   const [casesFilter, setCasesFilter] = useState([]);
-  const QueryByStatus = useQuery(GET_SLIDES_BY_STATUS, {client, variables: { statusFilter, limit: 5 }});
+  const QueryByStatus = useQuery(GET_SLIDES_BY_STATUS, {client, variables: { statusFilter, limit: 20 }});
   const [getCaseData, QueryByCase] = useLazyQuery(GET_SLIDES, {client, variables: { ImageIDs: casesFilter }});
   const [updateSlideID] = useMutation(UPDATE_SLIDEID, {client});
   const [updateCaseID] = useMutation(UPDATE_CASEID, {client});
