@@ -17,6 +17,16 @@ const client = new ApolloClient({
     typePolicies: {
       Slide: {
         keyFields: ["ImageID"]
+      },
+      Query: {
+        fields: {
+          feed: {
+            keyArgs: ["Status"],
+            merge(existing = [], incoming) {
+              return [...existing, ...incoming];
+            },
+          }
+        }
       }
     }
   }),
@@ -96,7 +106,7 @@ const COLUMNS =
 function DataView() {
   const [statusFilter, setStatusFilter] = useState(Statuses[0]);
   const [casesFilter, setCasesFilter] = useState([]);
-  const QueryByStatus = useQuery(GET_SLIDES_BY_STATUS, {client, variables: { statusFilter }});
+  const QueryByStatus = useQuery(GET_SLIDES_BY_STATUS, {client, variables: { statusFilter, limit: 5 }});
   const [getCaseData, QueryByCase] = useLazyQuery(GET_SLIDES, {client, variables: { ImageIDs: casesFilter }});
   const [updateSlideID] = useMutation(UPDATE_SLIDEID, {client});
   const [updateCaseID] = useMutation(UPDATE_CASEID, {client});
@@ -168,6 +178,12 @@ function DataView() {
     });
   }
 
+  const fetchMore = () => QueryByStatus.fetchMore({
+    variables: {
+      nextToken: QueryByStatus.data.Slides.nextToken,
+    },
+  })
+
   return html`
     <${ApolloProvider} client=${client}>
       <div>
@@ -189,6 +205,7 @@ function DataView() {
           loading=${currentQuery.loading}
           selectionChanged=${selectionChanged}
           updateField=${updateField}
+          fetchMore=${byStatus ? fetchMore : false}
         />
         <${Snackbar}
           anchorOrigin=${{
