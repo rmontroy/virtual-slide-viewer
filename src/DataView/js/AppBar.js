@@ -32,6 +32,7 @@ export default function AppBar({title, selectedImages, refetch, deleteSlide}) {
   };
 
   return html`
+    <div>
       <${MuiAppBar} position="fixed">
         <${Toolbar}>
           <${Typography} variant="h6" className=${classes.title}>
@@ -100,5 +101,6 @@ export default function AppBar({title, selectedImages, refetch, deleteSlide}) {
         </${Toolbar}|>
       </${MuiAppBar}>
       <div className=${classes.offset} />
+    </div>
   `;
 }
