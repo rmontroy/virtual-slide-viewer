@@ -126,6 +126,7 @@ function DataView() {
   useEffect(() => {
     let currentQuery = byStatus ? {...QueryByStatus} : {...QueryByCase};
     currentQuery.data = currentQuery.data ? (byStatus ? QueryByStatus.data.Slides.items : QueryByCase.data.Slides) : [];
+    currentQuery.moreData = byStatus && QueryByStatus.data && QueryByStatus.data.Slides.nextToken;
     setCurrentQuery(currentQuery);
   }, [QueryByStatus, QueryByCase, byStatus]);
 
@@ -206,7 +207,7 @@ function DataView() {
           loading=${currentQuery.loading}
           selectionChanged=${selectionChanged}
           updateField=${updateField}
-          fetchMore=${byStatus ? fetchMore : false}
+          fetchMore=${currentQuery.moreData ? fetchMore : false}
         />
         <${Snackbar}
           anchorOrigin=${{
