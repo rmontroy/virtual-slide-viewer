@@ -15,7 +15,6 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2, 2, 0),
   },
   appBar: {
-    alignSelf: 'flex-end',
     backgroundColor: theme.palette.grey[600],
   },
   grow: {
