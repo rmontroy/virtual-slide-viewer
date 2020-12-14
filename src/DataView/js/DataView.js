@@ -167,15 +167,8 @@ function DataView() {
   };
 
   const deleteSlide = (imageId) => {
-    fetch(`/slide/${imageId}`, {
-      method: 'DELETE',
-      mode: 'cors',
-      cache: 'no-cache',
-      credentials: 'include',
-      redirect: 'error',
-      referrerPolicy: 'same-origin',
-    }).then(response => {
-      deleteSlideMetadata({ variables: { ImageID: imageId } });
+    deleteSlideMetadata({ variables: { ImageID: imageId } })
+    .then(response => {
       setToastMessage(response.ok ? `Slide ${imageId} deleted.` : response.text);
     });
   }
