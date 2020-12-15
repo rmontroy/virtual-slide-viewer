@@ -12,31 +12,18 @@
   <body mdc-theme--background>
     <div id="root"></div>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="disclaimer">
-      <h2>Research Use Only. Not for use in diagnostic procedures.</h2>
-    </div>
-    <div style="text-align:left; padding: 5px; margin: 20px">
-      <ul style="margin-left: 20px">
-        <li style="list-style-type: disc">This warning banner provides privacy and security notices consistent with applicable federal laws, directives, and other federal guidance for accessing this Government system, which includes (1) this computer network, (2) all computers connected to this network, and (3) all devices and storage media attached to this network or to a computer on this network.</li>
-        <li style="list-style-type: disc">This system is provided for Government-authorized use only.</li>
-        <li style="list-style-type: disc">Unauthorized or improper use of this system is prohibited and may result in disciplinary action and/or civil and criminal penalties.</li>
-        <li style="list-style-type: disc">Personal use of social media and networking sites on this system is limited as to not interfere with official work duties and is subject to monitoring.</li>
-        <li style="list-style-type: disc">By using this information system, you understand and consent to the following:</li>
-        <ul style="margin-left: 20px;">
-          <li style="list-style-type: circle">The Government may monitor, record, and audit your system usage, including usage of personal devices and email systems for official duties or to conduct HHS business. Therefore, you have no reasonable expectation of privacy regarding any communication or data transiting or stored on this system. At any time, and for any lawful Government purpose, the government may monitor, intercept, and search and seize any communication or data transiting or stored on this system.</li>
-          <li style="list-style-type: circle">Any communication or data transiting or stored on this information system may be disclosed or used for any lawful Government purpose.</li>
-        </ul>
-      </ul>
-    </div>
     <script type="module">
       import React from 'react';
       import ReactDOM from 'react-dom';
       import DataView from './js/DataView';
       import { html } from 'htm/react';
+      import { CookiesProvider } from "react-cookie";
 
       ReactDOM.render(html`
         <${React.StrictMode}>
-          <${DataView} />
+          <${CookiesProvider}>
+            <${DataView} />
+          </${CookiesProvider}>
         </${React.StrictMode}>`,
         document.getElementById('root'),
       );

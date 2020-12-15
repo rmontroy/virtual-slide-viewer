@@ -10,6 +10,8 @@ import config from './config';
 import { GET_SLIDES_BY_STATUS, GET_SLIDES, UPDATE_SLIDEID, UPDATE_CASEID, DELETE_SLIDE, Statuses } from './graphql/queries';
 import '../css/style.css';
 import EditableField from './EditableField';
+import GovernmentSystemBanner from './GovernmentSystemBanner';
+import ResearchOnlyBanner from './ResearchOnlyBanner';
 
 const client = new ApolloClient({
   uri: config.graphqlUri,
@@ -188,6 +190,8 @@ function DataView() {
           refetch=${currentQuery.refetch}
           deleteSlide=${deleteSlide}
         />
+        <${GovernmentSystemBanner} />
+        <${ResearchOnlyBanner} />
         <${TableFilter}
           statusFilter=${statusFilter}
           setCasesFilter=${setCasesFilter}
