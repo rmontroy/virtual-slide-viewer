@@ -182,11 +182,10 @@ function DataView() {
     setToastMessage(null);
   };
 
-  const deleteSlide = (imageId) => {
-    deleteSlideMetadata({ variables: { ImageID: imageId } })
-    .then(response => {
-      setToastMessage(response.ok ? `Slide ${imageId} deleted.` : response.text);
-    });
+  const deleteSlides = (imageIds) => {
+    imageIds.forEach(imageId => deleteSlideMetadata({ variables: { ImageID: imageId } }));
+    let imageIdList = imageIds.join();
+    setToastMessage(`Image IDs ${imageIdList} marked as DELETED.`);
   }
 
   const fetchMore = () => QueryByStatus.fetchMore({
@@ -202,7 +201,7 @@ function DataView() {
           title=${config.appTitle}
           selectedImages=${selectedImages}
           refetch=${currentQuery.refetch}
-          deleteSlide=${deleteSlide}
+          deleteSlides=${deleteSlides}
         />
         <${GovernmentSystemBanner} />
         <${ResearchOnlyBanner} />
