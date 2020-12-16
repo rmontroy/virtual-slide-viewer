@@ -24,10 +24,24 @@ const client = new ApolloClient({
         fields: {
           querySlidesByStatus: {
             keyArgs: ["Status"],
-            merge(existing = { }, incoming) {
-              let mergedItems = [...existing.items || [], ...incoming.items];
-              return {...incoming, items: mergedItems};
+            merge(existing, incoming, { readField }) {
+              let items = existing ? { ...existing.items } : {};
+              incoming.items.forEach(item => {
+                items[readField("ImageID", item)] = item;
+              });
+              return {
+                nextToken: incoming.nextToken,
+                items,
+              };
             },
+            read(existing) {
+              if (existing) {
+                return {
+                  nextToken: existing.nextToken,
+                  items: Object.values(existing.items)
+                };
+              }
+            }
           }
         }
       }
