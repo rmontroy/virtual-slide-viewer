@@ -12,6 +12,8 @@ import '../css/style.css';
 import EditableField from './EditableField';
 import GovernmentSystemBanner from './GovernmentSystemBanner';
 import ResearchOnlyBanner from './ResearchOnlyBanner';
+import Box from "@material-ui/core/Box";
+import Chip from '@material-ui/core/Chip';
 
 const client = new ApolloClient({
   uri: config.graphqlUri,
@@ -227,6 +229,16 @@ function DataView() {
           fetchMore=${currentQuery.moreData ? fetchMore : false}
           hiddenColumns=${hiddenColumns}
         />
+        ${currentQuery.moreData && html`
+          <${Box} display='flex' justifyContent='center' flexWrap='wrap' m=${3}>
+            <${Chip}
+              color=primary
+              label='Fetch more rows'
+              clickable 
+              onClick=${fetchMore}
+            />
+          <//>
+        `}
         <${Snackbar}
           anchorOrigin=${{
             vertical: 'bottom',
