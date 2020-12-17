@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useReducer } from 'react';
 import { html } from 'htm/react';
 import AppBar from './AppBar';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -118,7 +118,12 @@ const COLUMNS =
     accessor: 'AppMag',
     Cell: ({value}) => `${value}X`
   },
+  { Header: 'Status', accessor: 'Status', id: 'Status' },
 ];
+
+function hiddenColumnsReducer(hiddenColumns, delta) {
+  return {...hiddenColumns, ...delta}
+}
 
 function DataView() {
   const [statusFilter, setStatusFilter] = useState(Statuses[0]);
@@ -138,6 +143,7 @@ function DataView() {
   const [selectedImages, setSelectedImages] = useState([]);
   const byStatus = casesFilter.length == 0;
   const [toastMessage, setToastMessage] = useState(null);
+  const [hiddenColumns, updateHiddenColumns] = useReducer(hiddenColumnsReducer, { Status: true });
 
   useEffect(() => {
     let currentQuery = byStatus ? {...QueryByStatus} : {...QueryByCase};
@@ -149,7 +155,8 @@ function DataView() {
   useEffect(() => {
     if (casesFilter.length > 0)
       getCaseData();
-  }, [casesFilter, getCaseData]);
+    updateHiddenColumns({Status: casesFilter.length == 0});
+  }, [casesFilter, getCaseData, updateHiddenColumns]);
 
   const columns = useMemo(() => COLUMNS, []);
 
@@ -218,6 +225,7 @@ function DataView() {
           selectionChanged=${selectionChanged}
           updateField=${updateField}
           fetchMore=${currentQuery.moreData ? fetchMore : false}
+          hiddenColumns=${hiddenColumns}
         />
         <${Snackbar}
           anchorOrigin=${{

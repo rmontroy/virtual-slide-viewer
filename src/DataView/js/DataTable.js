@@ -28,14 +28,16 @@ function DataTable({
   loading,
   selectionChanged,
   updateField,
-  fetchMore
+  fetchMore,
+  hiddenColumns
 })
 {
   const classes = useStyles();
   const { 
     getTableProps, 
     headerGroups, 
-    rows, 
+    rows,
+    toggleHideColumn,
     prepareRow,
     visibleColumns,
     selectedFlatRows,
@@ -74,6 +76,13 @@ function DataTable({
   useEffect(() => {
     selectionChanged(selectedFlatRows);
   }, [selectedFlatRows, selectionChanged]);
+
+  useEffect(() => {
+    for (const id in hiddenColumns) {
+      console.log(id)
+      toggleHideColumn(id, hiddenColumns[id])
+    }
+  }, [hiddenColumns, toggleHideColumn]);
 
   return html`
     <${TableContainer} component=${Paper}>
