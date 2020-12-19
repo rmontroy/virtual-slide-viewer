@@ -17,13 +17,10 @@
       import ReactDOM from 'react-dom';
       import DataView from './js/DataView';
       import { html } from 'htm/react';
-      import { CookiesProvider } from "react-cookie";
 
       ReactDOM.render(html`
         <${React.StrictMode}>
-          <${CookiesProvider}>
-            <${DataView} />
-          </${CookiesProvider}>
+          <${DataView} />
         </${React.StrictMode}>`,
         document.getElementById('root'),
       );

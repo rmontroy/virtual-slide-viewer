@@ -8,22 +8,19 @@ import WarningIcon from "@material-ui/icons/Warning";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import Box from "@material-ui/core/Box";
-import { useCookies } from "react-cookie";
 
 export default function Banner() {
-  const [cookies, setCookie] = useCookies(['govt_sys']);
+  const [cookie, setCookie] = React.useState(() => document.cookie.split(';').some((item) => item.trim().startsWith('dismissFismaBanner=')));
   const dismissBanner = () => {
-    var onemonth = new Date();
-    onemonth.setMonth(onemonth.getMonth()+1);
-    setCookie('govt_sys', 'dismissed', {
-      path: '/',
-      expires: onemonth
-    });
+    var expires = new Date();
+    expires.setDate(expires.getDate()+30);
+    document.cookie = `dismissFismaBanner=true; expires=${expires}`;
+    setCookie(true)
   };
 
   return (
     <React.Fragment>
-      {!cookies.govt_sys &&
+      {!cookie &&
         <React.Fragment>
           <CssBaseline />
           <Paper elevation={0}>

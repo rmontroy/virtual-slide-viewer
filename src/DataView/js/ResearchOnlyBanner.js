@@ -6,22 +6,19 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import Box from "@material-ui/core/Box";
-import { useCookies } from "react-cookie";
 
 export default function Banner() {
-  const [cookies, setCookie] = useCookies(['res_only']);
+  const [cookie, setCookie] = React.useState(() => document.cookie.split(';').some((item) => item.trim().startsWith('dismissResearchOnlyBanner=')));
   const dismissBanner = () => {
-    var oneYear = new Date();
-    oneYear.setYear(oneYear.getYear()+1);
-    setCookie('res_only', 'dismissed', {
-      path: '/',
-      expires: oneYear
-    });
+    var expires = new Date();
+    expires.setDate(expires.getDate()+180);
+    document.cookie = `dismissResearchOnlyBanner=true; expires=${expires}`;
+    setCookie(true)
   };
 
   return (
     <React.Fragment>
-      {!cookies.res_only &&
+      {!cookie &&
         <React.Fragment>
           <CssBaseline />
           <Paper elevation={0}>
