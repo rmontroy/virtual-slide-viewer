@@ -9,6 +9,7 @@ import { ApolloClient, InMemoryCache, useQuery, useMutation } from '@apollo/clie
 import { GET_SLIDES, UPDATE_SLIDE_STATUS } from './graphql/queries';
 import ZoomSlider from './ZoomSlider';
 import AppBar from './AppBar';
+import RulerTool from './Ruler';
 
 const client = new ApolloClient({
   uri: config.graphqlUri,
@@ -56,7 +57,9 @@ const ImageView = () => {
   const [zoom, setZoom] = useState(0);
   const savedViewsRef = useRef([]);
   const [zoomBounds, setZoomBounds] = useState({min:0, max:0});
-  
+  const [rulerActive, setRulerActive] = useState(false);
+  const [mpp, setMpp] = useState(1);
+
   useEffect(() => {
     // Need to wait until mounting element is rendered before creating viewer
     let viewer = initOpenSeadragon();
@@ -95,16 +98,10 @@ const ImageView = () => {
     if (!data) return;
 
     let mpp = data.Slides[page].MPP;
+    setMpp(mpp);
     viewer.scalebar({
       pixelsPerMeter: (1 / (parseFloat(mpp) * 0.000001))
     });
-      
-    // viewer.measurementTool({
-    //     mpp: {
-    //         x: mpp,
-    //         y: mpp,
-    //       },
-    //     });
     
   }, [page, data, loading, viewer]);
       
@@ -148,12 +145,31 @@ const ImageView = () => {
     
     return osd;
   }, []);
+  
+  const handleKeyDown = useCallback((e) => {
+      if (e.ctrlKey && 'j' == e.key.toLocaleLowerCase()) {
+        e.preventDefault();
+        setRulerActive((active) => !active);
+        return;
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  })
 
   let currentSlide = !data ? {} : data.Slides[page];
   
   return html`
       <${AppBar} currentSlide=${currentSlide} updateStatus=${updateSlideStatus} />
       <div id="openseadragon1" className="main" />
+      ${rulerActive && html`<${RulerTool} viewer=${viewer} mpp=${mpp} addOverlay=${() => {}} />`}
       ${!viewer || loading ? html`<p>Loading...</p>` : html`
         <${ZoomSlider} 
           appMag=${Number(currentSlide.AppMag)}
