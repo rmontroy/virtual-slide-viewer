@@ -20,7 +20,7 @@
     "react-table": "^7.5.0"
   },
   "devDependencies": {
-    "@snowpack/app-scripts-react": "^1.10.0",
+    "@snowpack/app-scripts-react": "^2.0.0",
     "@snowpack/plugin-optimize": "^0.2.10",
     "@testing-library/jest-dom": "^5.11.8",
     "@testing-library/react": "^11.2.2",
