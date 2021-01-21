@@ -3,12 +3,17 @@ For now, the frontend is only (1) a data table for slide metadata and (2) the vi
 
 Authentication is intended to be transparent to the frontend (à la [this solution](https://github.com/aws-samples/cloudfront-authorization-at-edge#readme)). Once authenticated, the frontend should transparently pass an AppSync-compatible authorization cookie to the GraphQL endpoint, as well as any CloudFronted S3 buckets.
 
+## Set up
+1. `git clone https://github.com/VanAndelInstitute/virtual-slide-viewer.git`
+2. `cd virtual-slide-viewer`
+3. `npm i`
+
 ## Build and run
-- `$ npx snowpack dev`
+- `npx snowpack dev`
 
 or
-1. `$ npx snowpack build --watch`
-2. `$ npx servor --static build`
+1. `npx snowpack build --watch`
+2. `npx servor --static build`
 
 
 ## General workflow for Virtual Slide Viewer deployments
