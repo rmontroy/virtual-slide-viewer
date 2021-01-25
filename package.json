@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@snowpack/app-scripts-react": "^1.10.0",
-    "@snowpack/plugin-optimize": "^0.2.10",
+    "@snowpack/plugin-optimize": "^0.2.13",
     "@testing-library/jest-dom": "^5.11.8",
     "@testing-library/react": "^11.2.2",
     "eslint": "^7.17.0",
