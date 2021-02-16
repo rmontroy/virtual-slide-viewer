@@ -8,4 +8,12 @@ updates:
   - package-ecosystem: "npm"
     directory: "/" # Location of package manifests
     schedule:
-      interval: "daily"
+      interval: "weekly"
+    ignored_updates:
+    - match:
+        dependency_name: "eslint"
+        version_requirement: "7.x"
+   
+    - match:
+        dependency_name: "@apollo/client"
+        version_requirement: "~3.3.6"
