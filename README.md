@@ -1,7 +1,7 @@
 # Frontend for Virtual Slide Viewer
 For now, the frontend is only (1) a data table for slide metadata and (2) the viewer itself, which is implemented on top of [OpenSeadragon](https://openseadragon.github.io/).
 
-Authentication is intended to be transparent to the frontend (à la [this solution](https://github.com/aws-samples/cloudfront-authorization-at-edge#readme)). Once authenticated, the frontend should transparently pass an AppSync-compatible authorization cookie to the GraphQL endpoint, as well as any CloudFronted S3 buckets.
+Authentication is intended to be transparent to the frontend (à la [this solution](https://github.com/aws-samples/cloudfront-authorization-at-edge#readme)). Once authenticated, the frontend should transparently pass an AppSync-compatible authorization cookie to the GraphQL endpoint, other APIs, and CloudFronted S3 buckets.
 
 ## Set up
 1. `git clone https://github.com/VanAndelInstitute/virtual-slide-viewer.git`
@@ -17,18 +17,20 @@ or
 
 
 ## General workflow for Virtual Slide Viewer deployments
-1. Scanner dumps files onto ScanScope Workstation
-2. SVS files uploaded from ScanScope Workstation to AWS S3
-3. Image preprocessor:
-    - converts files from SVS to VSV format
-    - extracts and uploads slide metadata to database
-4.	**Scanner technician reviews images for scanning errors**
+1. Aperio scanner dumps SVS image files onto local Aperio ScanScope Workstation
+2. AWS DataSync agent transfers SVS files to Amazon EFS
+3. Amazon EventBridge rule forwards file transfer event to AWS Lambda
+4. AWS Lambda:
+    - extracts label and thumbnail images from SVS file
+    - extracts image metadata from TIFF tags and reads barcode from label image
+    - uploads metadata to Amazon DynamoDB table
+    - extracts DeepZoom tiles from SVS file and caches them as JPEGs in EFS during viewing
+5.	**Scanner technician reviews images for scanning errors**
     - searches for new (unsent) slides
     - deletes and rescans failed slide scans
     - fixes slide/case IDs, if incorrect or missing
     - marks slides to send (metadata) to CDR
-5.	**Pathologist reviews slides**
+6.	**Pathologist reviews slides**
 
 ## Related projects
-- [svs2vsv image format converter](https://github.com/VanAndelInstitute/svs2vsv)
 - backend for Virtual Slide Viewer
