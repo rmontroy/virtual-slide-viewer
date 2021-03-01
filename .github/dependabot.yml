@@ -12,7 +12,7 @@ updates:
     ignored_updates:
     - match:
         dependency_name: "eslint"
-        version_requirement: "7.x"
+        version_requirement: "~7.17.0"
    
     - match:
         dependency_name: "@apollo/client"
