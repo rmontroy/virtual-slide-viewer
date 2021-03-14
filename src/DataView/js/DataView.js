@@ -5,7 +5,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Snackbar from '@material-ui/core/Snackbar';
 import DataTable from './DataTable';
 import { TableFilter } from './Filters';
-import { ApolloClient, InMemoryCache, useQuery, useLazyQuery, useMutation, ApolloProvider } from '@apollo/client';
+import { ApolloClient, HttpLink, InMemoryCache, useQuery, useLazyQuery, useMutation, ApolloProvider } from '@apollo/client';
 import config from './config';
 import { GET_SLIDES_BY_STATUS, GET_SLIDES, UPDATE_SLIDEID, UPDATE_CASEID, DELETE_SLIDE, Statuses } from './graphql/queries';
 import '../css/style.css';
@@ -15,8 +15,11 @@ import ResearchOnlyBanner from './ResearchOnlyBanner';
 import Box from "@material-ui/core/Box";
 import Chip from '@material-ui/core/Chip';
 
+const link = new HttpLink({
+  uri: '/graphql',
+  credentials: 'same-origin'
+});
 const client = new ApolloClient({
-  uri: config.graphqlUri,
   cache: new InMemoryCache({
     typePolicies: {
       Slide: {
@@ -49,9 +52,7 @@ const client = new ApolloClient({
       }
     }
   }),
-  headers: {
-    'x-api-key': config.apiKey
-  }
+  link
 });
 
 const COLUMNS = 

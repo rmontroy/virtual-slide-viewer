@@ -5,14 +5,17 @@ import OpenSeadragon from 'openseadragon';
 import './plugins/openseadragon-scalebar';
 import './plugins/openseadragon-measurement-tool';
 import '../css/openseadragon-measurement-tool.css'
-import { ApolloClient, InMemoryCache, useQuery, useMutation } from '@apollo/client';
+import { ApolloClient, HttpLink, InMemoryCache, useQuery, useMutation } from '@apollo/client';
 import { GET_SLIDES, UPDATE_SLIDE_STATUS } from './graphql/queries';
 import ZoomSlider from './ZoomSlider';
 import AppBar from './AppBar';
 import RulerTool from './Ruler';
 
+const link = new HttpLink({
+  uri: '/graphql',
+  credentials: 'same-origin'
+});
 const client = new ApolloClient({
-  uri: config.graphqlUri,
   cache: new InMemoryCache({
     typePolicies: {
       Slide: {
@@ -20,9 +23,7 @@ const client = new ApolloClient({
       }
     }
   }),
-  headers: {
-    'x-api-key': config.apiKey
-  }
+  link
 });
 
 const parseQueryString = () => {
