@@ -24,7 +24,7 @@
     "@snowpack/plugin-optimize": "^0.2.10",
     "@testing-library/jest-dom": "^5.11.8",
     "@testing-library/react": "^11.2.2",
-    "eslint": "^7.17.0",
+    "eslint": "^7.22.0",
     "eslint-plugin-react": "^7.22.0",
     "eslint-plugin-react-hooks": "^4.2.0",
     "jest": "^26.2.2",
