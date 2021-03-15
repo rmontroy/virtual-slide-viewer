@@ -1,6 +1,6 @@
 # Frontend for Virtual Slide Viewer
 
-[![amplifybutton](https://oneclick.amplifyapp.com/button.svg)](https://console.aws.amazon.com/amplify/home#/deploy?repo=https://github.com/VanAndelInstitute/virtual-slide-viewer.git)
+[![amplifybutton](https://oneclick.amplifyapp.com/button.svg)](https://console.aws.amazon.com/amplify/home#/deploy?repo=https://github.com/VanAndelInstitute/virtual-slide-viewer)
 
 For now, the frontend is only (1) a data table for slide metadata and (2) the viewer itself, which is implemented on top of [OpenSeadragon](https://openseadragon.github.io/).
 
