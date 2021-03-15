@@ -1,4 +1,7 @@
 # Frontend for Virtual Slide Viewer
+
+[![amplifybutton](https://oneclick.amplifyapp.com/button.svg)](https://console.aws.amazon.com/amplify/home#/deploy?repo=https://github.com/VanAndelInstitute/virtual-slide-viewer.git)
+
 For now, the frontend is only (1) a data table for slide metadata and (2) the viewer itself, which is implemented on top of [OpenSeadragon](https://openseadragon.github.io/).
 
 Authentication is intended to be transparent to the frontend (à la [this solution](https://github.com/aws-samples/cloudfront-authorization-at-edge#readme)). Once authenticated, the frontend should transparently pass an AppSync-compatible authorization cookie to the GraphQL endpoint, other APIs, and CloudFronted S3 buckets.
