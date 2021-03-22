@@ -7,11 +7,12 @@ import Typography from '@material-ui/core/Typography';
 import Fab from '@material-ui/core/Fab';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
-import { Visibility, Refresh,  MoreVert, Delete } from '@material-ui/icons';
+import { Visibility, Refresh,  MoreVert, Delete, Archive } from '@material-ui/icons';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import config from './config';
 
 const useStyles = makeStyles((theme) => ({
   viewButton: {
@@ -23,7 +24,7 @@ const useStyles = makeStyles((theme) => ({
   offset: theme.mixins.toolbar,
 }));
 
-export default function AppBar({title, selectedImages, refetch, deleteSlides}) {
+export default function AppBar({title, selectedImages, refetch, transferImages, deleteImages, statusFilter}) {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
   
@@ -39,7 +40,7 @@ export default function AppBar({title, selectedImages, refetch, deleteSlides}) {
             ${title || 'Virtual Slide Viewer'}
           </${Typography}>
             <${Fab}
-              href=${`viewer/index.html?imageIds=${selectedImages}`}
+              href=${`viewer/index.html?imageIds=${selectedImages.map(image => image.ImageID)}`}
               variant="extended"
               color="secondary"
               size="medium"
@@ -85,19 +86,35 @@ export default function AppBar({title, selectedImages, refetch, deleteSlides}) {
                 setAnchorEl(null);
               }}
             >
-              <${MenuItem}
-                onClick=${() => {
-                  deleteSlides(selectedImages);
-                  setAnchorEl(null);
-                }}
-                disabled=${selectedImages.length == 0}
-              >
-                <${ListItemIcon}>
-                  <${Delete} fontSize="small" />
-                </${ListItemIcon}>
-                <${ListItemText} primary="Delete slides" />
-              </${MenuItem}>
-            </${Menu}>
+              ${statusFilter == config.doneStatus && html`
+                <${MenuItem}
+                  onClick=${() => {
+                    transferImages(selectedImages);
+                    setAnchorEl(null);
+                  }}
+                  disabled=${selectedImages.length == 0}
+                >
+                  <${ListItemIcon}>
+                    <${Archive} fontSize="small" />
+                  </${ListItemIcon}>
+                  <${ListItemText} primary="Transfer/archive slides" />
+                </${MenuItem}>
+              `}
+              ${statusFilter != config.doneStatus && html`
+                <${MenuItem}
+                  onClick=${() => {
+                    deleteImages(selectedImages);
+                    setAnchorEl(null);
+                  }}
+                  disabled=${selectedImages.length == 0}
+                >
+                  <${ListItemIcon}>
+                    <${Delete} fontSize="small" />
+                  </${ListItemIcon}>
+                  <${ListItemText} primary="Delete slides" />
+                </${MenuItem}>
+              `}
+              </${Menu}>
         </${Toolbar}|>
       </${MuiAppBar}>
       <div className=${classes.offset} />
