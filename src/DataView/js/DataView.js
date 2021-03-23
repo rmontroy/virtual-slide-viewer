@@ -7,7 +7,7 @@ import DataTable from './DataTable';
 import { TableFilter } from './Filters';
 import { ApolloClient, HttpLink, InMemoryCache, useQuery, useLazyQuery, useMutation, ApolloProvider } from '@apollo/client';
 import config from './config';
-import { GET_SLIDES_BY_STATUS, GET_SLIDES, UPDATE_SLIDEID, UPDATE_CASEID, DELETE_SLIDE, Statuses } from './graphql/queries';
+import { GET_SLIDES_BY_STATUS, GET_SLIDES, UPDATE_SLIDEID, UPDATE_CASEID, UPDATE_STATUS, Statuses } from './graphql/queries';
 import '../css/style.css';
 import EditableField from './EditableField';
 import GovernmentSystemBanner from './GovernmentSystemBanner';
@@ -135,8 +135,8 @@ function DataView() {
   const [getCaseData, QueryByCase] = useLazyQuery(GET_SLIDES, {client, variables: { ImageIDs: casesFilter }});
   const [updateSlideID] = useMutation(UPDATE_SLIDEID, {client});
   const [updateCaseID] = useMutation(UPDATE_CASEID, {client});
-  const [deleteSlideMetadata] = useMutation(DELETE_SLIDE, {
-    client,
+  const [updateStatus] = useMutation(UPDATE_STATUS, {client});
+  const [deleteImageMetadata] = useMutation(UPDATE_STATUS, {client,
     update(cache, { data: { updateSlide } }) {
       let key = `Slide:{"ImageID":"${updateSlide.ImageID}"}`;
       cache.evict(key)
@@ -167,8 +167,12 @@ function DataView() {
     currentQuery.error && console.error(currentQuery.error);
   }, [currentQuery.error])
   
-  const selectionChanged = useCallback(selectedRows => setSelectedImages(selectedRows.map(row => row.values["ImageID"])),
-    [setSelectedImages]);
+  const selectionChanged = useCallback(selectedRows => setSelectedImages(selectedRows.map(row => (
+      {
+        ImageID: row.original["ImageID"],
+        Filename: row.original["Filename"]
+      }
+    ))), [setSelectedImages]);
 
   const updateField = (row, columnId, value) => {
     let fieldName, imageId = row.values["ImageID"];
@@ -192,10 +196,45 @@ function DataView() {
     setToastMessage(null);
   };
 
-  const deleteSlides = (imageIds) => {
-    imageIds.forEach(imageId => deleteSlideMetadata({ variables: { ImageID: imageId } }));
-    let imageIdList = imageIds.join();
-    setToastMessage(`Image IDs ${imageIdList} marked as DELETED.`);
+  const removeImages = (op, images) => {
+    return fetch('RemoveImages', {
+      method: 'DELETE',
+      credentials: 'same-origin',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json;charset=UTF-8'
+      },
+      body: JSON.stringify({
+        Operation: op,
+        Images: images
+      })
+    })
+  }
+
+  const transferImages = (images) => {
+    images.forEach(image => updateStatus({ variables: { Status: 'TRANSFERRING', ImageID: image.ImageID } }));
+    removeImages('TRANSFER', images)
+    .then(response => {
+      console.log(response.status);
+      if (response.ok)
+        setToastMessage(`Transfer images request submitted successfully.`);
+      else
+        console.error(response.statusText)
+    })
+    .catch(error => console.error(error));
+  }
+
+  const deleteImages = (images) => {
+    images.forEach(image => deleteImageMetadata({ variables: { Status: 'DELETED', ImageID: image.ImageID } }));
+    removeImages('DELETE', images)
+    .then(response => {
+      console.log(response.json())
+      if (response.ok)
+        setToastMessage(`Delete images request submitted successfully.`);
+      else
+        setToastMessage(`Delete images request failed.`);
+    })
+    .catch(error => console.error(error));
   }
 
   const fetchMore = () => QueryByStatus.fetchMore({
@@ -211,7 +250,9 @@ function DataView() {
           title=${config.appTitle}
           selectedImages=${selectedImages}
           refetch=${currentQuery.refetch}
-          deleteSlides=${deleteSlides}
+          transferImages=${transferImages}
+          deleteImages=${deleteImages}
+          statusFilter=${statusFilter}
         />
         <${GovernmentSystemBanner} />
         <${ResearchOnlyBanner} />

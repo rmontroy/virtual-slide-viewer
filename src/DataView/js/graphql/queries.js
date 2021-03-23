@@ -10,6 +10,7 @@ export const GET_SLIDES = gql`
       AppMag
       MPP
       Status
+      Filename
     }
   }
 `;
@@ -42,6 +43,7 @@ export const GET_SLIDES_BY_STATUS = gql`
         ScanDate
         AppMag
         MPP
+        Filename
       }
       nextToken
     }
@@ -66,13 +68,13 @@ export const UPDATE_CASEID = gql`
   }
 `;
 
-export const DELETE_SLIDE = gql`
-  mutation UpdateSlide($ImageID: String!) {
-    updateSlide(input: {Status: "DELETED", ImageID: $ImageID}) {
+export const UPDATE_STATUS = gql`
+  mutation UpdateSlide($Status: String!, $ImageID: String!) {
+    updateSlide(input: {Status: $Status, ImageID: $ImageID}) {
       ImageID
       Status
     }
   }
 `;
 
-export const Statuses = ['NEW', 'GOOD', 'BAD'];
+export const Statuses = ['NEW', 'GOOD', 'BAD', 'TRANSFERRING', 'TRANSFERRED'];
