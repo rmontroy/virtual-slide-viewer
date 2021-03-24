@@ -10,6 +10,7 @@ export const GET_SLIDES = gql`
       AppMag
       MPP
       Status
+      Filename
     }
   }
 `;
@@ -42,6 +43,7 @@ export const GET_SLIDES_BY_STATUS = gql`
         ScanDate
         AppMag
         MPP
+        Filename
       }
       nextToken
     }

@@ -166,8 +166,12 @@ function DataView() {
     currentQuery.error && console.error(currentQuery.error);
   }, [currentQuery.error])
   
-  const selectionChanged = useCallback(selectedRows => setSelectedImages(selectedRows.map(row => row.values["ImageID"])),
-    [setSelectedImages]);
+  const selectionChanged = useCallback(selectedRows => setSelectedImages(selectedRows.map(row => (
+      {
+        ImageID: row.original["ImageID"],
+        Filename: row.original["Filename"]
+      }
+    ))), [setSelectedImages]);
 
   const updateField = (row, columnId, value) => {
     let fieldName, imageId = row.values["ImageID"];

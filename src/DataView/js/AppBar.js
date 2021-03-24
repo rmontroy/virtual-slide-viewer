@@ -40,7 +40,7 @@ export default function AppBar({title, selectedImages, refetch, removeImages, st
             ${title || 'Virtual Slide Viewer'}
           </${Typography}>
             <${Fab}
-              href=${`viewer/index.html?imageIds=${selectedImages}`}
+              href=${`viewer/index.html?imageIds=${selectedImages.map(image => image.ImageID)}`}
               variant="extended"
               color="secondary"
               size="medium"
