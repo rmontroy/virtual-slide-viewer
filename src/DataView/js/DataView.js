@@ -7,7 +7,7 @@ import DataTable from './DataTable';
 import { TableFilter } from './Filters';
 import { ApolloClient, HttpLink, InMemoryCache, useQuery, useLazyQuery, useMutation, ApolloProvider } from '@apollo/client';
 import config from './config';
-import { GET_SLIDES_BY_STATUS, GET_SLIDES, UPDATE_SLIDEID, UPDATE_CASEID, DELETE_SLIDE, Statuses } from './graphql/queries';
+import { GET_SLIDES_BY_STATUS, GET_SLIDES, UPDATE_SLIDEID, UPDATE_CASEID, UPDATE_STATUS, Statuses } from './graphql/queries';
 import '../css/style.css';
 import EditableField from './EditableField';
 import GovernmentSystemBanner from './GovernmentSystemBanner';
@@ -135,8 +135,7 @@ function DataView() {
   const [getCaseData, QueryByCase] = useLazyQuery(GET_SLIDES, {client, variables: { ImageIDs: casesFilter }});
   const [updateSlideID] = useMutation(UPDATE_SLIDEID, {client});
   const [updateCaseID] = useMutation(UPDATE_CASEID, {client});
-  const [deleteSlideMetadata] = useMutation(DELETE_SLIDE, {
-    client,
+  const [updateStatus] = useMutation(UPDATE_STATUS, {client,
     update(cache, { data: { updateSlide } }) {
       let key = `Slide:{"ImageID":"${updateSlide.ImageID}"}`;
       cache.evict(key)
@@ -192,10 +191,31 @@ function DataView() {
     setToastMessage(null);
   };
 
-  const deleteSlides = (imageIds) => {
-    imageIds.forEach(imageId => deleteSlideMetadata({ variables: { ImageID: imageId } }));
-    let imageIdList = imageIds.join();
-    setToastMessage(`Image IDs ${imageIdList} marked as DELETED.`);
+  const removeImages = (op, images) => {
+    fetch('RemoveImages', {
+      method: 'DELETE',
+      credentials: 'same-origin',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json;charset=UTF-8'
+      },
+      body: JSON.stringify({
+        Operation: op,
+        Images: images
+      })
+    })
+    .then(response => {
+      if (response.ok) {
+        images.forEach(image => updateStatus({ variables: { Status: op, ImageID: image.ImageID } }));
+        let messageText = (op === 'TRANSFERRED' ? 'Transfer' : 'Delete') + ' images request submitted successfully.';
+        setToastMessage(messageText);
+      }
+      else {
+        console.error(response.statusText)
+        setToastMessage(`Request failed.`);
+      }
+    })
+    .catch(error => console.error(error));
   }
 
   const fetchMore = () => QueryByStatus.fetchMore({
@@ -211,7 +231,8 @@ function DataView() {
           title=${config.appTitle}
           selectedImages=${selectedImages}
           refetch=${currentQuery.refetch}
-          deleteSlides=${deleteSlides}
+          removeImages=${removeImages}
+          statusFilter=${statusFilter}
         />
         <${GovernmentSystemBanner} />
         <${ResearchOnlyBanner} />
