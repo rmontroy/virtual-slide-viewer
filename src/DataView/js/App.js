@@ -6,6 +6,7 @@ import { ApolloClient, HttpLink, InMemoryCache, ApolloProvider } from '@apollo/c
 import { setContext } from '@apollo/client/link/context';
 import DataView from './DataView';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import Box from "@material-ui/core/Box";
 import { Amplify, Auth, Hub } from 'aws-amplify';
 import awsconfig from '/aws-exports';
 
@@ -97,12 +98,9 @@ function App() {
       var urlParams = new URLSearchParams(location.search);
       if (!urlParams.has('code')) {
         Auth.currentSession().then(session => {
-          let token = session.getAccessToken().getJwtToken();
-          if (token) {
-            setJwt(token);
-          } else {
-            Auth.federatedSignIn();
-          }
+          setJwt(session.getAccessToken().getJwtToken());
+        }).catch(() => {
+          Auth.federatedSignIn();
         });
       }
     }
@@ -117,7 +115,10 @@ function App() {
         <${ApolloProvider} client=${client}>
           <${DataView} />
         </${ApolloProvider}>
-      ` : html`<${CircularProgress} />`}
+      ` : html`
+        <${Box} display='flex' justifyContent='center' alignItems='center'>
+          <${CircularProgress} />
+        <//>`}
     </div>
   `;
 }
