@@ -66,7 +66,6 @@ function DataTable({
 
   useEffect(() => {
     for (const id in hiddenColumns) {
-      console.log(id)
       toggleHideColumn(id, hiddenColumns[id])
     }
   }, [hiddenColumns, toggleHideColumn]);

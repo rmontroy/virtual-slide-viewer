@@ -5,3 +5,4 @@ node_modules
 logos/
 yarn-error.log*
 .snowpack
+aws-exports.js
