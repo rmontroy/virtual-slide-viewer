@@ -5,26 +5,12 @@ import OpenSeadragon from 'openseadragon';
 import './plugins/openseadragon-scalebar';
 import './plugins/openseadragon-measurement-tool';
 import '../css/openseadragon-measurement-tool.css'
-import { ApolloClient, HttpLink, InMemoryCache, useQuery, useMutation } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import { GET_SLIDES, UPDATE_SLIDE_STATUS } from './graphql/queries';
 import ZoomSlider from './ZoomSlider';
 import AppBar from './AppBar';
 import RulerTool from './Ruler';
-
-const link = new HttpLink({
-  uri: '/graphql',
-  credentials: 'same-origin'
-});
-const client = new ApolloClient({
-  cache: new InMemoryCache({
-    typePolicies: {
-      Slide: {
-        keyFields: ["ImageID"]
-      }
-    }
-  }),
-  link
-});
+import Box from "@material-ui/core/Box";
 
 const parseQueryString = () => {
   let params = {};
@@ -52,8 +38,8 @@ const ImageView = () => {
   const [tileSources, setTileSources] = useState([]);
   const [page, setPage] = useState(0);
   const prevPageRef = useRef();
-  const {loading, data} = useQuery(GET_SLIDES, { variables: { ImageIDs: imageIds}, client});
-  const [updateSlideStatus] = useMutation(UPDATE_SLIDE_STATUS, {client});
+  const {loading, data} = useQuery(GET_SLIDES, { variables: { ImageIDs: imageIds} });
+  const [updateSlideStatus] = useMutation(UPDATE_SLIDE_STATUS);
   const [viewer, setViewer] = useState();
   const [zoom, setZoom] = useState(0);
   const savedViewsRef = useRef([]);
@@ -168,17 +154,19 @@ const ImageView = () => {
   let currentSlide = !data ? {} : data.Slides[page];
   
   return html`
-      <${AppBar} currentSlide=${currentSlide} updateStatus=${updateSlideStatus} />
-      <div id="openseadragon1" className="main" />
-      ${rulerActive && html`<${RulerTool} viewer=${viewer} mpp=${mpp} addOverlay=${() => {}} />`}
-      ${!viewer || loading ? html`<p>Loading...</p>` : html`
-        <${ZoomSlider} 
-          appMag=${Number(currentSlide.AppMag)}
-          zoom=${zoom}
-          zoomBounds=${zoomBounds}
-          viewport=${viewer.viewport}
-        />
-      `}
+      <${Box} display='flex' flexDirection='column-reverse' className='container'>
+        <${AppBar} currentSlide=${currentSlide} updateStatus=${updateSlideStatus} />
+        <div id="openseadragon1" className="main" />
+        ${rulerActive && html`<${RulerTool} viewer=${viewer} mpp=${mpp} addOverlay=${() => {}} />`}
+        ${!viewer || loading ? html`<p>Loading...</p>` : html`
+          <${ZoomSlider}
+            appMag=${Number(currentSlide.AppMag)}
+            zoom=${zoom}
+            zoomBounds=${zoomBounds}
+            viewport=${viewer.viewport}
+          />
+        `}
+      <//>
   `;
 };
 export default ImageView;

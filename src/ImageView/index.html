@@ -22,12 +22,12 @@
     <script type="module">
       import React from 'react';
       import ReactDOM from 'react-dom';
-      import ImageView from './js/ImageView';
+      import App from './js/App';
       import { html } from 'htm/react';
 
       ReactDOM.render(html`
         <${React.StrictMode}>
-          <${ImageView} />
+          <${App} />
         </${React.StrictMode}>`,
         document.getElementById('root'),
       );
