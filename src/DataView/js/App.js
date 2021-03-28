@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { html } from 'htm/react';
-import GovernmentSystemBanner from './GovernmentSystemBanner';
-import ResearchOnlyBanner from './ResearchOnlyBanner';
 import { ApolloClient, HttpLink, InMemoryCache, ApolloProvider } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
+import { html } from 'htm/react';
+import { makeStyles } from '@material-ui/core/styles';
+import GovernmentSystemBanner from './GovernmentSystemBanner';
+import ResearchOnlyBanner from './ResearchOnlyBanner';
 import DataView from './DataView';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Box from "@material-ui/core/Box";
@@ -49,7 +50,12 @@ const cache = new InMemoryCache({
   }
 });
 
+const useStyles = makeStyles((theme) => ({
+  offset: theme.mixins.toolbar,
+}));
+
 function App() {
+  const classes = useStyles();
   const [jwt, setJwt] = useState(null);
   const [client, setClient] = useState(null);
   useEffect(() => {
@@ -107,19 +113,18 @@ function App() {
   }, [jwt]);
   
   return html`
-    <div>
-      <${GovernmentSystemBanner} />
-      <${ResearchOnlyBanner} />
+    <div className=${classes.offset} />
+    <${GovernmentSystemBanner} />
+    <${ResearchOnlyBanner} />
 
-      ${jwt && client ? html`
-        <${ApolloProvider} client=${client}>
-          <${DataView} />
-        </${ApolloProvider}>
-      ` : html`
-        <${Box} display='flex' justifyContent='center' alignItems='center'>
-          <${CircularProgress} />
-        <//>`}
-    </div>
+    ${jwt && client ? html`
+      <${ApolloProvider} client=${client}>
+        <${DataView} />
+      </${ApolloProvider}>
+    ` : html`
+      <${Box} display='flex' justifyContent='center' alignItems='center' className='container'>
+        <${CircularProgress} />
+      <//>`}
   `;
 }
 

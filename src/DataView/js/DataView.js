@@ -187,50 +187,48 @@ function DataView() {
   })
 
   return html`
-    <div>
-      <${AppBar}
-        title=${config.appTitle}
-        selectedImages=${selectedImages}
-        refetch=${currentQuery.refetch}
-        removeImages=${removeImages}
-        statusFilter=${statusFilter}
-      />
-      <${TableFilter}
-        statusFilter=${statusFilter}
-        setCasesFilter=${setCasesFilter}
-        onFilterClick=${(statusFilter) => setStatusFilter(statusFilter)}
-      />
-      ${currentQuery.error && html`<p>Error :( ${currentQuery.error.message}</p>`}
-      <${DataTable}
-        columns=${columns}
-        data=${currentQuery.data}
-        loading=${currentQuery.loading}
-        selectionChanged=${selectionChanged}
-        updateField=${updateField}
-        fetchMore=${currentQuery.moreData ? fetchMore : false}
-        hiddenColumns=${hiddenColumns}
-      />
-      ${currentQuery.moreData && html`
-        <${Box} display='flex' justifyContent='center' flexWrap='wrap' m=${3}>
-          <${Chip}
-            color=primary
-            label='Fetch more rows'
-            clickable 
-            onClick=${fetchMore}
-          />
-        <//>
-      `}
-      <${Snackbar}
-        anchorOrigin=${{
-          vertical: 'bottom',
-          horizontal: 'center',
-        }}
-        open=${Boolean(toastMessage)}
-        autoHideDuration=${3000}
-        onClose=${closeEditFeedback}
-        message=${toastMessage}
-      />
-    </div>
+    <${AppBar}
+      title=${config.appTitle}
+      selectedImages=${selectedImages}
+      refetch=${currentQuery.refetch}
+      removeImages=${removeImages}
+      statusFilter=${statusFilter}
+    />
+    <${TableFilter}
+      statusFilter=${statusFilter}
+      setCasesFilter=${setCasesFilter}
+      onFilterClick=${(statusFilter) => setStatusFilter(statusFilter)}
+    />
+    ${currentQuery.error && html`<p>Error :( ${currentQuery.error.message}</p>`}
+    <${DataTable}
+      columns=${columns}
+      data=${currentQuery.data}
+      loading=${currentQuery.loading}
+      selectionChanged=${selectionChanged}
+      updateField=${updateField}
+      fetchMore=${currentQuery.moreData ? fetchMore : false}
+      hiddenColumns=${hiddenColumns}
+    />
+    ${currentQuery.moreData && html`
+      <${Box} display='flex' justifyContent='center' flexWrap='wrap' m=${3}>
+        <${Chip}
+          color=primary
+          label='Fetch more rows'
+          clickable
+          onClick=${fetchMore}
+        />
+      <//>
+    `}
+    <${Snackbar}
+      anchorOrigin=${{
+        vertical: 'bottom',
+        horizontal: 'center',
+      }}
+      open=${Boolean(toastMessage)}
+      autoHideDuration=${3000}
+      onClose=${closeEditFeedback}
+      message=${toastMessage}
+    />
   `
 }
 

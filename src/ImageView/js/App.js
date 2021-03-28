@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { html } from 'htm/react';
 import { ApolloClient, HttpLink, InMemoryCache, ApolloProvider } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
+import GovernmentSystemBanner from '/js/GovernmentSystemBanner';
+import ResearchOnlyBanner from '/js/ResearchOnlyBanner';
 import ImageView from './ImageView';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Box from "@material-ui/core/Box";
@@ -105,12 +107,15 @@ function App() {
   }, [jwt]);
   
   return html`
+    <${GovernmentSystemBanner} />
+    <${ResearchOnlyBanner} />
+
     ${jwt && client ? html`
       <${ApolloProvider} client=${client}>
         <${ImageView} />
       </${ApolloProvider}>
     ` : html`
-      <${Box} display='flex' justifyContent='center' alignItems='center'>
+      <${Box} display='flex' justifyContent='center' alignItems='center' className='container'>
         <${CircularProgress} />
       <//>`}
   `;

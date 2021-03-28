@@ -33,91 +33,88 @@ export default function AppBar({title, selectedImages, refetch, removeImages, st
   };
 
   return html`
-    <div>
-      <${MuiAppBar} position="fixed">
-        <${Toolbar}>
-          <${Typography} variant="h6" className=${classes.title}>
-            ${title || 'Virtual Slide Viewer'}
-          </${Typography}>
-            <${Fab}
-              href=${`viewer/index.html?imageIds=${selectedImages.map(image => image.ImageID)}`}
-              variant="extended"
-              color="secondary"
-              size="medium"
-              disabled=${selectedImages.length == 0}
-              className=${classes.viewButton}
+    <${MuiAppBar} position="fixed">
+      <${Toolbar}>
+        <${Typography} variant="h6" className=${classes.title}>
+          ${title || 'Virtual Slide Viewer'}
+        </${Typography}>
+          <${Fab}
+            href=${`viewer/index.html?imageIds=${selectedImages.map(image => image.ImageID)}`}
+            variant="extended"
+            color="secondary"
+            size="medium"
+            disabled=${selectedImages.length == 0}
+            className=${classes.viewButton}
+          >
+            <${Visibility} style=${{marginRight: 8}} />
+            View
+          </${Fab}>
+          <${Tooltip} title="Refetch">
+            <${IconButton}
+                color="inherit"
+                onClick=${() => refetch()}
+                aria-label="menu"
             >
-              <${Visibility} style=${{marginRight: 8}} />
-              View
-            </${Fab}>
-            <${Tooltip} title="Refetch">
-              <${IconButton}
-                  color="inherit"
-                  onClick=${() => refetch()}
-                  aria-label="menu"
-              >
-                <${Refresh} />
-              </${IconButton}>
-            </${Tooltip}>
-            <${Tooltip} title="More">
-              <${IconButton}
-                  edge="end"
-                  color="inherit"
-                  onClick=${handleMenu}
-                  aria-label="menu"
-              >
-                <${MoreVert} />
-              </${IconButton}>
-            </${Tooltip}>
-            <${Menu}
-              open=${Boolean(anchorEl)}
-              id="menu-appbar"
-              anchorEl=${anchorEl}
-              anchorOrigin=${{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              keepMounted
-              transformOrigin=${{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              onClose=${() => {
-                setAnchorEl(null);
-              }}
+              <${Refresh} />
+            </${IconButton}>
+          </${Tooltip}>
+          <${Tooltip} title="More">
+            <${IconButton}
+                edge="end"
+                color="inherit"
+                onClick=${handleMenu}
+                aria-label="menu"
             >
-              ${statusFilter == config.doneStatus && html`
-                <${MenuItem}
-                  onClick=${() => {
-                    removeImages('TRANSFERRED', selectedImages);
-                    setAnchorEl(null);
-                  }}
-                  disabled=${selectedImages.length == 0}
-                >
-                  <${ListItemIcon}>
-                    <${Archive} fontSize="small" />
-                  </${ListItemIcon}>
-                  <${ListItemText} primary="Transfer/archive slides" />
-                </${MenuItem}>
-              `}
-              ${statusFilter != config.doneStatus && html`
-                <${MenuItem}
-                  onClick=${() => {
-                    removeImages('DELETED', selectedImages);
-                    setAnchorEl(null);
-                  }}
-                  disabled=${selectedImages.length == 0}
-                >
-                  <${ListItemIcon}>
-                    <${Delete} fontSize="small" />
-                  </${ListItemIcon}>
-                  <${ListItemText} primary="Delete slides" />
-                </${MenuItem}>
-              `}
-              </${Menu}>
-        </${Toolbar}|>
-      </${MuiAppBar}>
-      <div className=${classes.offset} />
-    </div>
+              <${MoreVert} />
+            </${IconButton}>
+          </${Tooltip}>
+          <${Menu}
+            open=${Boolean(anchorEl)}
+            id="menu-appbar"
+            anchorEl=${anchorEl}
+            anchorOrigin=${{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            keepMounted
+            transformOrigin=${{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            onClose=${() => {
+              setAnchorEl(null);
+            }}
+          >
+            ${statusFilter == config.doneStatus && html`
+              <${MenuItem}
+                onClick=${() => {
+                  removeImages('TRANSFERRED', selectedImages);
+                  setAnchorEl(null);
+                }}
+                disabled=${selectedImages.length == 0}
+              >
+                <${ListItemIcon}>
+                  <${Archive} fontSize="small" />
+                </${ListItemIcon}>
+                <${ListItemText} primary="Transfer/archive slides" />
+              </${MenuItem}>
+            `}
+            ${statusFilter != config.doneStatus && html`
+              <${MenuItem}
+                onClick=${() => {
+                  removeImages('DELETED', selectedImages);
+                  setAnchorEl(null);
+                }}
+                disabled=${selectedImages.length == 0}
+              >
+                <${ListItemIcon}>
+                  <${Delete} fontSize="small" />
+                </${ListItemIcon}>
+                <${ListItemText} primary="Delete slides" />
+              </${MenuItem}>
+            `}
+            </${Menu}>
+      </${Toolbar}|>
+    </${MuiAppBar}>
   `;
 }
