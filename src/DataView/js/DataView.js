@@ -10,8 +10,6 @@ import config from './config';
 import { GET_SLIDES_BY_STATUS, GET_SLIDES, UPDATE_SLIDEID, UPDATE_CASEID, UPDATE_STATUS, Statuses } from './graphql/queries';
 import '../css/style.css';
 import EditableField from './EditableField';
-import GovernmentSystemBanner from './GovernmentSystemBanner';
-import ResearchOnlyBanner from './ResearchOnlyBanner';
 import Box from "@material-ui/core/Box";
 import Chip from '@material-ui/core/Chip';
 
@@ -196,9 +194,6 @@ function DataView() {
         refetch=${currentQuery.refetch}
         removeImages=${removeImages}
         statusFilter=${statusFilter}
-      />
-      <${GovernmentSystemBanner} />
-      <${ResearchOnlyBanner} />
       <${TableFilter}
         statusFilter=${statusFilter}
         setCasesFilter=${setCasesFilter}
