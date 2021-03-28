@@ -96,7 +96,14 @@ function App() {
     if (!jwt) {
       var urlParams = new URLSearchParams(location.search);
       if (!urlParams.has('code')) {
-        Auth.federatedSignIn();
+        Auth.currentSession().then(session => {
+          let token = session.getAccessToken().getJwtToken();
+          if (token) {
+            setJwt(token);
+          } else {
+            Auth.federatedSignIn();
+          }
+        });
       }
     }
   }, [jwt]);
