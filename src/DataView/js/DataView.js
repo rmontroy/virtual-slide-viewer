@@ -194,6 +194,7 @@ function DataView() {
         refetch=${currentQuery.refetch}
         removeImages=${removeImages}
         statusFilter=${statusFilter}
+      />
       <${TableFilter}
         statusFilter=${statusFilter}
         setCasesFilter=${setCasesFilter}
