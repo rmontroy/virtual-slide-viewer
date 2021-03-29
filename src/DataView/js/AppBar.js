@@ -12,6 +12,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import Divider from '@material-ui/core/Divider';
 import config from './config';
 import { Auth } from 'aws-amplify';
 
@@ -32,6 +33,8 @@ export default function AppBar({title, selectedImages, refetch, removeImages, st
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
   };
+
+  const isDone = statusFilter == config.doneStatus;
 
   return html`
     <${MuiAppBar} position="fixed">
@@ -86,34 +89,19 @@ export default function AppBar({title, selectedImages, refetch, removeImages, st
               setAnchorEl(null);
             }}
           >
-            ${statusFilter == config.doneStatus && html`
-              <${MenuItem}
-                onClick=${() => {
-                  removeImages('TRANSFERRED', selectedImages);
-                  setAnchorEl(null);
-                }}
-                disabled=${selectedImages.length == 0}
-              >
-                <${ListItemIcon}>
-                  <${Archive} fontSize="small" />
-                </${ListItemIcon}>
-                <${ListItemText} primary="Transfer/archive slides" />
-              </${MenuItem}>
-            `}
-            ${statusFilter != config.doneStatus && html`
-              <${MenuItem}
-                onClick=${() => {
-                  removeImages('DELETED', selectedImages);
-                  setAnchorEl(null);
-                }}
-                disabled=${selectedImages.length == 0}
-              >
-                <${ListItemIcon}>
-                  <${Delete} fontSize="small" />
-                </${ListItemIcon}>
-                <${ListItemText} primary="Delete slides" />
-              </${MenuItem}>
-            `}
+            <${MenuItem}
+              onClick=${() => {
+                removeImages(isDone ? 'TRANSFERRED' : 'DELETED', selectedImages);
+                setAnchorEl(null);
+              }}
+              disabled=${selectedImages.length == 0}
+            >
+              <${ListItemIcon}>
+                <${isDone ? Archive : Delete} fontSize="small" />
+              </${ListItemIcon}>
+              <${ListItemText} primary=${isDone ? 'Transfer/archive images' : 'Delete images'} />
+            </${MenuItem}>
+            <${Divider} variant="middle" />
             <${MenuItem}
               onClick=${() => {
                 Auth.signOut();
