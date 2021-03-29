@@ -1,21 +1,19 @@
 # Frontend for Virtual Slide Viewer
 
-[![amplifybutton](https://oneclick.amplifyapp.com/button.svg)](https://console.aws.amazon.com/amplify/home#/deploy?repo=https://github.com/VanAndelInstitute/virtual-slide-viewer)
-
-For now, the frontend is only (1) a data table for slide metadata and (2) the viewer itself, which is implemented on top of [OpenSeadragon](https://openseadragon.github.io/).
-
-Authentication is intended to be transparent to the frontend (à la [this solution](https://github.com/aws-samples/cloudfront-authorization-at-edge#readme)). Once authenticated, the frontend should transparently pass an AppSync-compatible authorization cookie to the GraphQL endpoint, other APIs, and CloudFronted S3 buckets.
+For now, the frontend is a monorepo of two independent but closely related apps:
+1. a data table for slide metadata; and
+2. the viewer itself, which is implemented on top of [OpenSeadragon](https://openseadragon.github.io/).
 
 ## Set up
 1. `git clone https://github.com/VanAndelInstitute/virtual-slide-viewer.git`
 2. `cd virtual-slide-viewer`
-3. `npm i`
+3. `yarn install`
 
 ## Build and run
-- `npx snowpack dev`
+- `npx snowpack dev --polyfill-node`
 
 or
-1. `npx snowpack build --watch`
+1. `npx snowpack build --polyfill-node --watch`
 2. `npx servor --static build`
 
 
@@ -36,4 +34,4 @@ or
 6.	**Pathologist reviews slides**
 
 ## Related projects
-- backend for Virtual Slide Viewer
+- [backend for Virtual Slide Viewer](https://github.com/VanAndelInstitute/virtual-slide-viewer-backend)

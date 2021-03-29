@@ -12,6 +12,7 @@
     "@material-ui/icons": "^4.9.1",
     "@material-ui/lab": "^4.0.0-alpha.57",
     "autosuggest-highlight": "^3.1.1",
+    "aws-amplify": "^3.3.26",
     "graphql": "^15.3.0",
     "htm": "^3.0.4",
     "openseadragon": "^2.4.2",

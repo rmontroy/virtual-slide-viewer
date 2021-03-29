@@ -5,55 +5,13 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Snackbar from '@material-ui/core/Snackbar';
 import DataTable from './DataTable';
 import { TableFilter } from './Filters';
-import { ApolloClient, HttpLink, InMemoryCache, useQuery, useLazyQuery, useMutation, ApolloProvider } from '@apollo/client';
+import { useQuery, useLazyQuery, useMutation } from '@apollo/client';
 import config from './config';
 import { GET_SLIDES_BY_STATUS, GET_SLIDES, UPDATE_SLIDEID, UPDATE_CASEID, UPDATE_STATUS, Statuses } from './graphql/queries';
 import '../css/style.css';
 import EditableField from './EditableField';
-import GovernmentSystemBanner from './GovernmentSystemBanner';
-import ResearchOnlyBanner from './ResearchOnlyBanner';
 import Box from "@material-ui/core/Box";
 import Chip from '@material-ui/core/Chip';
-
-const link = new HttpLink({
-  uri: '/graphql',
-  credentials: 'same-origin'
-});
-const client = new ApolloClient({
-  cache: new InMemoryCache({
-    typePolicies: {
-      Slide: {
-        keyFields: ["ImageID"]
-      },
-      Query: {
-        fields: {
-          querySlidesByStatus: {
-            keyArgs: ["Status"],
-            merge(existing, incoming, { readField }) {
-              let items = existing ? { ...existing.items } : {};
-              incoming.items.forEach(item => {
-                items[readField("ImageID", item)] = item;
-              });
-              return {
-                nextToken: incoming.nextToken,
-                items,
-              };
-            },
-            read(existing) {
-              if (existing) {
-                return {
-                  nextToken: existing.nextToken,
-                  items: Object.values(existing.items)
-                };
-              }
-            }
-          }
-        }
-      }
-    }
-  }),
-  link
-});
 
 const COLUMNS = 
 [
@@ -131,11 +89,11 @@ function hiddenColumnsReducer(hiddenColumns, delta) {
 function DataView() {
   const [statusFilter, setStatusFilter] = useState(Statuses[0]);
   const [casesFilter, setCasesFilter] = useState([]);
-  const QueryByStatus = useQuery(GET_SLIDES_BY_STATUS, {client, variables: { statusFilter, limit: 20 }});
-  const [getCaseData, QueryByCase] = useLazyQuery(GET_SLIDES, {client, variables: { ImageIDs: casesFilter }});
-  const [updateSlideID] = useMutation(UPDATE_SLIDEID, {client});
-  const [updateCaseID] = useMutation(UPDATE_CASEID, {client});
-  const [updateStatus] = useMutation(UPDATE_STATUS, {client,
+  const QueryByStatus = useQuery(GET_SLIDES_BY_STATUS, {variables: { statusFilter, limit: 20 }});
+  const [getCaseData, QueryByCase] = useLazyQuery(GET_SLIDES, {variables: { ImageIDs: casesFilter }});
+  const [updateSlideID] = useMutation(UPDATE_SLIDEID);
+  const [updateCaseID] = useMutation(UPDATE_CASEID);
+  const [updateStatus] = useMutation(UPDATE_STATUS, {
     update(cache, { data: { updateSlide } }) {
       let key = `Slide:{"ImageID":"${updateSlide.ImageID}"}`;
       cache.evict(key)
@@ -229,54 +187,48 @@ function DataView() {
   })
 
   return html`
-    <${ApolloProvider} client=${client}>
-      <div>
-        <${AppBar}
-          title=${config.appTitle}
-          selectedImages=${selectedImages}
-          refetch=${currentQuery.refetch}
-          removeImages=${removeImages}
-          statusFilter=${statusFilter}
+    <${AppBar}
+      title=${config.appTitle}
+      selectedImages=${selectedImages}
+      refetch=${currentQuery.refetch}
+      removeImages=${removeImages}
+      statusFilter=${statusFilter}
+    />
+    <${TableFilter}
+      statusFilter=${statusFilter}
+      setCasesFilter=${setCasesFilter}
+      onFilterClick=${(statusFilter) => setStatusFilter(statusFilter)}
+    />
+    ${currentQuery.error && html`<p>Error :( ${currentQuery.error.message}</p>`}
+    <${DataTable}
+      columns=${columns}
+      data=${currentQuery.data}
+      loading=${currentQuery.loading}
+      selectionChanged=${selectionChanged}
+      updateField=${updateField}
+      fetchMore=${currentQuery.moreData ? fetchMore : false}
+      hiddenColumns=${hiddenColumns}
+    />
+    ${currentQuery.moreData && html`
+      <${Box} display='flex' justifyContent='center' flexWrap='wrap' m=${3}>
+        <${Chip}
+          color=primary
+          label='Fetch more rows'
+          clickable
+          onClick=${fetchMore}
         />
-        <${GovernmentSystemBanner} />
-        <${ResearchOnlyBanner} />
-        <${TableFilter}
-          statusFilter=${statusFilter}
-          setCasesFilter=${setCasesFilter}
-          onFilterClick=${(statusFilter) => setStatusFilter(statusFilter)}
-        />
-        ${currentQuery.error && html`<p>Error :( ${currentQuery.error.message}</p>`}
-        <${DataTable}
-          columns=${columns}
-          data=${currentQuery.data}
-          loading=${currentQuery.loading}
-          selectionChanged=${selectionChanged}
-          updateField=${updateField}
-          fetchMore=${currentQuery.moreData ? fetchMore : false}
-          hiddenColumns=${hiddenColumns}
-        />
-        ${currentQuery.moreData && html`
-          <${Box} display='flex' justifyContent='center' flexWrap='wrap' m=${3}>
-            <${Chip}
-              color=primary
-              label='Fetch more rows'
-              clickable 
-              onClick=${fetchMore}
-            />
-          <//>
-        `}
-        <${Snackbar}
-          anchorOrigin=${{
-            vertical: 'bottom',
-            horizontal: 'center',
-          }}
-          open=${Boolean(toastMessage)}
-          autoHideDuration=${3000}
-          onClose=${closeEditFeedback}
-          message=${toastMessage}
-        />
-      </div>
-    </${ApolloProvider}>
+      <//>
+    `}
+    <${Snackbar}
+      anchorOrigin=${{
+        vertical: 'bottom',
+        horizontal: 'center',
+      }}
+      open=${Boolean(toastMessage)}
+      autoHideDuration=${3000}
+      onClose=${closeEditFeedback}
+      message=${toastMessage}
+    />
   `
 }
 

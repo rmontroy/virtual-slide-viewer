@@ -1,30 +1,18 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { html } from 'htm/react';
+import { makeStyles } from '@material-ui/core/styles';
 import config from './config';
 import OpenSeadragon from 'openseadragon';
 import './plugins/openseadragon-scalebar';
 import './plugins/openseadragon-measurement-tool';
 import '../css/openseadragon-measurement-tool.css'
-import { ApolloClient, HttpLink, InMemoryCache, useQuery, useMutation } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import { GET_SLIDES, UPDATE_SLIDE_STATUS } from './graphql/queries';
 import ZoomSlider from './ZoomSlider';
 import AppBar from './AppBar';
 import RulerTool from './Ruler';
-
-const link = new HttpLink({
-  uri: '/graphql',
-  credentials: 'same-origin'
-});
-const client = new ApolloClient({
-  cache: new InMemoryCache({
-    typePolicies: {
-      Slide: {
-        keyFields: ["ImageID"]
-      }
-    }
-  }),
-  link
-});
+import Box from "@material-ui/core/Box";
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const parseQueryString = () => {
   let params = {};
@@ -47,13 +35,26 @@ const getImageIds = () => {
   return params["imageIds"] ? params["imageIds"].split(",") : [];  
 }
 
+const useStyles = makeStyles(() => ({
+  fullheight: {
+    height: '100%',
+  },
+  center: {
+    margin: 0,
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+  }
+}));
+
 const ImageView = () => {
+  const classes = useStyles();
   const [imageIds] = useState(getImageIds());
   const [tileSources, setTileSources] = useState([]);
   const [page, setPage] = useState(0);
   const prevPageRef = useRef();
-  const {loading, data} = useQuery(GET_SLIDES, { variables: { ImageIDs: imageIds}, client});
-  const [updateSlideStatus] = useMutation(UPDATE_SLIDE_STATUS, {client});
+  const {loading, data} = useQuery(GET_SLIDES, { variables: { ImageIDs: imageIds} });
+  const [updateSlideStatus] = useMutation(UPDATE_SLIDE_STATUS);
   const [viewer, setViewer] = useState();
   const [zoom, setZoom] = useState(0);
   const savedViewsRef = useRef([]);
@@ -168,17 +169,19 @@ const ImageView = () => {
   let currentSlide = !data ? {} : data.Slides[page];
   
   return html`
-      <${AppBar} currentSlide=${currentSlide} updateStatus=${updateSlideStatus} />
-      <div id="openseadragon1" className="main" />
-      ${rulerActive && html`<${RulerTool} viewer=${viewer} mpp=${mpp} addOverlay=${() => {}} />`}
-      ${!viewer || loading ? html`<p>Loading...</p>` : html`
-        <${ZoomSlider} 
-          appMag=${Number(currentSlide.AppMag)}
-          zoom=${zoom}
-          zoomBounds=${zoomBounds}
-          viewport=${viewer.viewport}
-        />
-      `}
+      <${Box} display='flex' flexDirection='column-reverse' className=${classes.fullheight}>
+        <${AppBar} currentSlide=${currentSlide} updateStatus=${updateSlideStatus} />
+        <div id="openseadragon1" className="main" />
+        ${rulerActive && html`<${RulerTool} viewer=${viewer} mpp=${mpp} addOverlay=${() => {}} />`}
+        ${!viewer || loading ? html`<${CircularProgress} className=${classes.center} />` : html`
+          <${ZoomSlider}
+            appMag=${Number(currentSlide.AppMag)}
+            zoom=${zoom}
+            zoomBounds=${zoomBounds}
+            viewport=${viewer.viewport}
+          />
+        `}
+      <//>
   `;
 };
 export default ImageView;
