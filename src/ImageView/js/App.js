@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import { html } from 'htm/react';
 import { ApolloClient, HttpLink, InMemoryCache, ApolloProvider } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
+import { html } from 'htm/react';
+import { makeStyles } from '@material-ui/core/styles';
 import GovernmentSystemBanner from '/js/GovernmentSystemBanner';
 import ResearchOnlyBanner from '/js/ResearchOnlyBanner';
 import ImageView from './ImageView';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import Box from "@material-ui/core/Box";
 import { Amplify, Auth, Hub } from 'aws-amplify';
 import awsconfig from '/aws-exports';
 
@@ -49,7 +49,18 @@ const cache = new InMemoryCache({
   }
 });
 
+const useStyles = makeStyles((theme) => ({
+  offset: theme.mixins.toolbar,
+  center: {
+    margin: 0,
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+  }
+}));
+
 function App() {
+  const classes = useStyles();
   const [jwt, setJwt] = useState(null);
   const [client, setClient] = useState(null);
   useEffect(() => {
@@ -115,9 +126,8 @@ function App() {
         <${ImageView} />
       </${ApolloProvider}>
     ` : html`
-      <${Box} display='flex' justifyContent='center' alignItems='center' className='container'>
-        <${CircularProgress} />
-      <//>`}
+        <${CircularProgress} className=${classes.center} />
+      `}
   `;
 }
 

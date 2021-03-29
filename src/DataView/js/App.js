@@ -7,7 +7,6 @@ import GovernmentSystemBanner from './GovernmentSystemBanner';
 import ResearchOnlyBanner from './ResearchOnlyBanner';
 import DataView from './DataView';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import Box from "@material-ui/core/Box";
 import { Amplify, Auth, Hub } from 'aws-amplify';
 import awsconfig from '/aws-exports';
 
@@ -52,6 +51,12 @@ const cache = new InMemoryCache({
 
 const useStyles = makeStyles((theme) => ({
   offset: theme.mixins.toolbar,
+  center: {
+    margin: 0,
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+  }
 }));
 
 function App() {
@@ -122,9 +127,8 @@ function App() {
         <${DataView} />
       </${ApolloProvider}>
     ` : html`
-      <${Box} display='flex' justifyContent='center' alignItems='center' className='container'>
-        <${CircularProgress} />
-      <//>`}
+        <${CircularProgress} className=${classes.center} />
+      `}
   `;
 }
 
