@@ -13,6 +13,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import config from './config';
+import { Auth } from 'aws-amplify';
 
 const useStyles = makeStyles((theme) => ({
   viewButton: {
@@ -113,7 +114,18 @@ export default function AppBar({title, selectedImages, refetch, removeImages, st
                 <${ListItemText} primary="Delete slides" />
               </${MenuItem}>
             `}
-            </${Menu}>
+            <${MenuItem}
+              onClick=${() => {
+                Auth.signOut();
+                setAnchorEl(null);
+              }}
+            >
+              <${ListItemIcon}>
+                <span class="material-icons">logout</span>
+              </${ListItemIcon}>
+              <${ListItemText} primary="Sign out" />
+            </${MenuItem}>
+          </${Menu}>
       </${Toolbar}|>
     </${MuiAppBar}>
   `;
