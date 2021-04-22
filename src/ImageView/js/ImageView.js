@@ -14,27 +14,6 @@ import RulerTool from './Ruler';
 import Box from "@material-ui/core/Box";
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-const parseQueryString = () => {
-  let params = {};
-  let search = window.location.search.slice(1);
-  if (search) {
-    let parts = search.split("&");
-
-    parts.forEach(function (part) {
-      let subparts = part.split("=");
-      let key = subparts[0];
-      let value = subparts[1];
-      params[key] = value;
-    });
-  }
-  return params;
-}
-
-const getImageIds = () => {
-  let params = parseQueryString();
-  return params["imageIds"] ? params["imageIds"].split(",") : [];  
-}
-
 const useStyles = makeStyles(() => ({
   fullheight: {
     height: '100%',
@@ -47,9 +26,8 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-const ImageView = () => {
+const ImageView = ({imageIds}) => {
   const classes = useStyles();
-  const [imageIds] = useState(getImageIds());
   const [tileSources, setTileSources] = useState([]);
   const [page, setPage] = useState(0);
   const prevPageRef = useRef();
