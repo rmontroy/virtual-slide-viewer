@@ -77,4 +77,4 @@ export const UPDATE_STATUS = gql`
   }
 `;
 
-export const Statuses = ['NEW', 'GOOD', 'BAD', 'TRANSFERRED'];
+export const Statuses = ['NEW', 'GOOD', 'BAD', 'PUBLISHED'];

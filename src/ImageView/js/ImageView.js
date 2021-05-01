@@ -144,11 +144,27 @@ const ImageView = ({imageIds}) => {
     }
   })
 
+  const backUpSlide = (image) => {
+    fetch('/ManageFiles', {
+      method: 'PUT',
+      credentials: 'same-origin',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json;charset=UTF-8'
+      },
+      body: JSON.stringify({
+        Operation: 'BACKUP',
+        Images: [image]
+      })
+    })
+    .catch(error => console.error(error));
+  }
+
   let currentSlide = !data ? {} : data.Slides[page];
   
   return html`
       <${Box} display='flex' flexDirection='column-reverse' className=${classes.fullheight}>
-        <${AppBar} currentSlide=${currentSlide} updateStatus=${updateSlideStatus} />
+        <${AppBar} currentSlide=${currentSlide} updateStatus=${updateSlideStatus} backUpSlide=${backUpSlide} />
         <div id="openseadragon1" className="main" />
         ${rulerActive && html`<${RulerTool} viewer=${viewer} mpp=${mpp} addOverlay=${() => {}} />`}
         ${!viewer || loading ? html`<${CircularProgress} className=${classes.center} />` : html`
