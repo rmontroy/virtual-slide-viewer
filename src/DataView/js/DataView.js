@@ -153,28 +153,28 @@ function DataView() {
     setToastMessage(null);
   };
 
-  const removeImages = (op, images) => {
-    fetch('RemoveImages', {
-      method: 'DELETE',
+  const handleSlideOperation = (func, status, op, images) => {
+    fetch(func, {
+      method: 'PUT',
       credentials: 'same-origin',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json;charset=UTF-8'
       },
       body: JSON.stringify({
-        Operation: op,
+        Operation: op.upper(),
         Images: images
       })
     })
     .then(response => {
       if (response.ok) {
-        images.forEach(image => updateStatus({ variables: { Status: op, ImageID: image.ImageID } }));
-        let messageText = (op === 'TRANSFERRED' ? 'Transfer' : 'Delete') + ' images request submitted successfully.';
+        images.forEach(image => updateStatus({ variables: { Status: status, ImageID: image.ImageID } }));
+        let messageText = op + ' slides request submitted successfully.';
         setToastMessage(messageText);
       }
       else {
         console.error(response.statusText)
-        setToastMessage(`Request failed.`);
+        setToastMessage(op + ' slides request failed.');
       }
     })
     .catch(error => console.error(error));
@@ -191,7 +191,8 @@ function DataView() {
       title=${config.appTitle}
       selectedImages=${selectedImages}
       refetch=${currentQuery.refetch}
-      removeImages=${removeImages}
+      deleteSlides=${(images) => handleSlideOperation('ManageFiles', 'DELETED', 'DELETE', images)}
+      publishSlides=${(images) => handleSlideOperation('PublishSlides', 'PUBLISHED', 'PUBLISH', images)}
       statusFilter=${statusFilter}
     />
     <${TableFilter}

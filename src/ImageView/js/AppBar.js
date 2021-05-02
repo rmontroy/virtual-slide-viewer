@@ -9,6 +9,7 @@ import { Statuses } from './graphql/queries';
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
 import Tooltip from '@material-ui/core/Tooltip';
+import config from './config';
 
 const useStyles = makeStyles((theme) => ({
   text: {
@@ -34,11 +35,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function AppBar({currentSlide, role, updateStatus}) {
+export default function AppBar({currentSlide, role, updateStatus, backUpSlide}) {
   const classes = useStyles();
   
   const handleStatusChange = (event, newStatus) => {
     updateStatus({ variables: { imageid: currentSlide.ImageID, status: newStatus } });
+    if (newStatus == config.doneStatus) {
+      backUpSlide({
+        ImageID: currentSlide.ImageID,
+        Filename: currentSlide.Filename
+      });
+    }
   };
 
   return html`

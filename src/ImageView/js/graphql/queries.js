@@ -10,6 +10,7 @@ export const GET_SLIDES = gql`
       AppMag
       MPP
       Status
+      Filename
     }
   }
 `;

@@ -7,7 +7,7 @@ import Typography from '@material-ui/core/Typography';
 import Fab from '@material-ui/core/Fab';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
-import { Visibility, Refresh,  MoreVert, Delete, Archive } from '@material-ui/icons';
+import { Visibility, Refresh,  MoreVert, Delete, Publish } from '@material-ui/icons';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
   offset: theme.mixins.toolbar,
 }));
 
-export default function AppBar({title, selectedImages, refetch, removeImages, statusFilter}) {
+export default function AppBar({title, selectedImages, refetch, deleteSlides, publishSlides, statusFilter}) {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = useState(null);
   
@@ -91,15 +91,19 @@ export default function AppBar({title, selectedImages, refetch, removeImages, st
           >
             <${MenuItem}
               onClick=${() => {
-                removeImages(isDone ? 'TRANSFERRED' : 'DELETED', selectedImages);
+                if (isDone) {
+                  deleteSlides(selectedImages);
+                } else {
+                  publishSlides(selectedImages);
+                }
                 setAnchorEl(null);
               }}
               disabled=${selectedImages.length == 0}
             >
               <${ListItemIcon}>
-                <${isDone ? Archive : Delete} fontSize="small" />
+                <${isDone ? Publish : Delete} fontSize="small" />
               </${ListItemIcon}>
-              <${ListItemText} primary=${isDone ? 'Transfer/archive images' : 'Delete images'} />
+              <${ListItemText} primary=${isDone ? 'Publish images' : 'Delete images'} />
             </${MenuItem}>
             <${Divider} variant="middle" />
             <${MenuItem}
