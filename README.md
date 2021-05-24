@@ -1,3 +1,5 @@
+**This repository is now obsolete. See https://github.com/VanAndelInstitute/s3vs**
+
 # Frontend for Virtual Slide Viewer
 
 For now, the frontend is a monorepo of two independent but closely related apps:
